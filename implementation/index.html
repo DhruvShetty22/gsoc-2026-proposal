@@ -266,22 +266,32 @@ rest_path(
 </li>
 </ul>
 <hr />
-<h2 id="customizable-webhook-notification-fields">Customizable Webhook Notification Fields</h2>
-<h3 id="problem">Problem</h3>
-<p>Zulip's incoming webhook integrations display a fixed set of fields in
+<!-- 
+## Customizable Webhook Notification Fields
+
+### Problem
+
+Zulip's incoming webhook integrations display a fixed set of fields in
 notifications. For example, when a Jira issue is created, only
-<strong>Priority</strong> and <strong>Assignee</strong> are shown and users cannot choose to see
-<strong>Project</strong>, <strong>Version</strong>, <strong>Reporter</strong>, or custom Jira fields without
-editing the webhook handler code.</p>
-<h3 id="goal">Goal</h3>
-<p>Allow users to configure which fields appear in webhook notifications
+**Priority** and **Assignee** are shown and users cannot choose to see
+**Project**, **Version**, **Reporter**, or custom Jira fields without
+editing the webhook handler code.
+
+### Goal
+
+Allow users to configure which fields appear in webhook notifications
 through the existing "Generate URL for an integration" modal, using a
 pill-based UI with typeahead suggestions. The solution should be generic
 enough that other integrations (GitHub, GitLab, PagerDuty, etc.) can
-adopt the same pattern.</p>
-<hr />
-<h3 id="architecture-overview">Architecture Overview</h3>
-<p>The implementation spans four layers:</p>
+adopt the same pattern.
+
+---
+
+### Architecture Overview
+
+The implementation spans four layers:
+
+
 <pre><code>┌─────────────────────────────────────────────────┐
 │  Frontend: Pill UI + Typeahead                  │
 │  (integration_url_modal.ts,                     │
@@ -297,273 +307,206 @@ adopt the same pattern.</p>
 │  (e.g., zerver/webhooks/jira/view.py)           │
 └─────────────────────────────────────────────────┘
 </code></pre>
-<hr />
-<h3 id="commit-1-backend-configurable-fields-for-jira-issue-creation">Commit 1: Backend — Configurable fields for Jira issue creation</h3>
-<p><strong>Files:</strong> <code>zerver/webhooks/jira/view.py</code>, <code>zerver/webhooks/jira/tests.py</code>,
-<code>zerver/webhooks/jira/fixtures/created_with_versions_v1.json</code>,
-<code>zerver/lib/integrations.py</code>, <code>zerver/webhooks/jira/doc.md</code></p>
-<p><strong>What changes:</strong></p>
-<ul>
-<li>
-<p>Define an <code>ISSUE_FIELDS_CONFIG</code> dictionary that maps short field names
-  (<code>priority</code>, <code>assignee</code>, <code>project</code>, <code>version</code>, <code>status</code>, <code>reporter</code>,
-  <code>issuetype</code>, <code>description</code>) to tuples of <code>(json_path_keys, label,
-  default_value)</code>.</p>
-</li>
-<li>
-<p>Add a <code>created_issue_fields</code> URL parameter to the Jira webhook
-  endpoint (default: <code>"priority,assignee"</code>), accepted as a
-  comma-separated string.</p>
-</li>
-<li>
-<p>Refactor <code>handle_created_issue_event</code> from hardcoded Priority/Assignee
-  bullets to a data-driven loop over <code>ISSUE_FIELDS_CONFIG</code>.</p>
-</li>
-<li>
-<p>Update <code>get_in()</code> type signature from <code>list[str]</code> to <code>list[str | int]</code>
-  to support integer indexing (needed for <code>fixVersions[0].name</code>).</p>
-</li>
-<li>
-<p>Remove <code>handle_created_issue_event</code> from <code>JIRA_CONTENT_FUNCTION_MAPPER</code>
-  (set to <code>None</code>) since it now takes an extra parameter; handle it
-  directly in <code>api_jira_webhook</code>.</p>
-</li>
-<li>
-<p>Register a <code>WebhookUrlOption</code> for <code>created_issue_fields</code> on the Jira
-  integration in <code>integrations.py</code>.</p>
-</li>
-<li>
-<p>Fall back to default fields when no valid field names are provided.</p>
-</li>
-</ul>
-<p><strong>Tests added:</strong></p>
-<ul>
-<li><code>test_created_with_invalid_fields_falls_back_to_default</code> — garbage
-  field names produce the default (priority + assignee) output.</li>
-<li><code>test_created_with_custom_fields_missing_version</code> — requesting
-  <code>project,version</code> on a payload with empty <code>fixVersions</code> shows only
-  Project.</li>
-<li><code>test_created_with_custom_fields</code> — requesting <code>project,version</code> on a
-  payload with populated <code>fixVersions</code> shows both.</li>
-</ul>
-<p><strong>New fixture:</strong> <code>created_with_versions_v1.json</code> — clone of <code>created_v1</code>
-with a populated <code>fixVersions</code> array.</p>
-<hr />
-<h3 id="commit-2-backend-custom-dot-path-field-support">Commit 2: Backend — Custom dot-path field support</h3>
-<p><strong>Files:</strong> <code>zerver/webhooks/jira/view.py</code>, <code>zerver/webhooks/jira/tests.py</code></p>
-<p><strong>What changes:</strong></p>
-<ul>
-<li>
-<p>Add <code>get_custom_field_bullet(payload, field_path)</code> that resolves
-  arbitrary dot-separated paths (e.g., <code>project.name</code>,
-  <code>customfield_10042.name</code>) against <code>issue.fields</code> in the Jira payload.
-  Numeric path segments are treated as list indices.</p>
-</li>
-<li>
-<p>Update the field resolution loop in <code>handle_created_issue_event</code> to try
-  <code>ISSUE_FIELDS_CONFIG</code> first, then fall back to dot-path resolution for
-  fields containing a <code>.</code>. Falls back to defaults only when <em>no</em> field
-  (whitelisted or dot-path) produces output.</p>
-</li>
-<li>
-<p>The last segment of the dot-path is used as the display label,
-  title-cased with underscores replaced by spaces.</p>
-</li>
-</ul>
-<p><strong>Tests added:</strong></p>
-<ul>
-<li><code>test_created_with_custom_dot_path_field</code> — <code>project.name</code> resolves
-  correctly.</li>
-<li><code>test_created_with_mixed_whitelisted_and_dot_path_fields</code> —
-  <code>priority,project.name</code> combines both resolution strategies.</li>
-</ul>
-<hr />
-<h3 id="commit-3-infrastructure-options-field-on-webhookurloption">Commit 3: Infrastructure — <code>options</code> field on <code>WebhookUrlOption</code></h3>
-<p><strong>Files:</strong> <code>zerver/lib/webhooks/common.py</code>, <code>zerver/lib/integrations.py</code>,
-<code>zerver/lib/events.py</code>, <code>web/src/state_data.ts</code>,
-<code>web/src/integration_url_modal.ts</code></p>
-<p><strong>What changes:</strong></p>
-<ul>
-<li>
-<p>Add <code>options: list[str] | None = None</code> to the <code>WebhookUrlOption</code>
+
+
+---
+
+### Commit 1: Backend — Configurable fields for Jira issue creation
+
+**Files:** `zerver/webhooks/jira/view.py`, `zerver/webhooks/jira/tests.py`,
+`zerver/webhooks/jira/fixtures/created_with_versions_v1.json`,
+`zerver/lib/integrations.py`, `zerver/webhooks/jira/doc.md`
+
+**What changes:**
+
+- Define an `ISSUE_FIELDS_CONFIG` dictionary that maps short field names
+  (`priority`, `assignee`, `project`, `version`, `status`, `reporter`,
+  `issuetype`, `description`) to tuples of `(json_path_keys, label,
+  default_value)`.
+
+- Add a `created_issue_fields` URL parameter to the Jira webhook
+  endpoint (default: `"priority,assignee"`), accepted as a
+  comma-separated string.
+
+- Refactor `handle_created_issue_event` from hardcoded Priority/Assignee
+  bullets to a data-driven loop over `ISSUE_FIELDS_CONFIG`.
+
+- Update `get_in()` type signature from `list[str]` to `list[str | int]`
+  to support integer indexing (needed for `fixVersions[0].name`).
+
+- Remove `handle_created_issue_event` from `JIRA_CONTENT_FUNCTION_MAPPER`
+  (set to `None`) since it now takes an extra parameter; handle it
+  directly in `api_jira_webhook`.
+
+- Register a `WebhookUrlOption` for `created_issue_fields` on the Jira
+  integration in `integrations.py`.
+
+- Fall back to default fields when no valid field names are provided.
+
+**Tests added:**
+
+- `test_created_with_invalid_fields_falls_back_to_default` — garbage
+  field names produce the default (priority + assignee) output.
+- `test_created_with_custom_fields_missing_version` — requesting
+  `project,version` on a payload with empty `fixVersions` shows only
+  Project.
+- `test_created_with_custom_fields` — requesting `project,version` on a
+  payload with populated `fixVersions` shows both.
+
+**New fixture:** `created_with_versions_v1.json` — clone of `created_v1`
+with a populated `fixVersions` array.
+
+---
+
+### Commit 2: Backend — Custom dot-path field support
+
+**Files:** `zerver/webhooks/jira/view.py`, `zerver/webhooks/jira/tests.py`
+
+**What changes:**
+
+- Add `get_custom_field_bullet(payload, field_path)` that resolves
+  arbitrary dot-separated paths (e.g., `project.name`,
+  `customfield_10042.name`) against `issue.fields` in the Jira payload.
+  Numeric path segments are treated as list indices.
+
+- Update the field resolution loop in `handle_created_issue_event` to try
+  `ISSUE_FIELDS_CONFIG` first, then fall back to dot-path resolution for
+  fields containing a `.`. Falls back to defaults only when *no* field
+  (whitelisted or dot-path) produces output.
+
+- The last segment of the dot-path is used as the display label,
+  title-cased with underscores replaced by spaces.
+
+**Tests added:**
+
+- `test_created_with_custom_dot_path_field` — `project.name` resolves
+  correctly.
+- `test_created_with_mixed_whitelisted_and_dot_path_fields` —
+  `priority,project.name` combines both resolution strategies.
+
+---
+
+### Commit 3: Infrastructure — `options` field on `WebhookUrlOption`
+
+**Files:** `zerver/lib/webhooks/common.py`, `zerver/lib/integrations.py`,
+`zerver/lib/events.py`, `web/src/state_data.ts`,
+`web/src/integration_url_modal.ts`
+
+**What changes:**
+
+- Add `options: list[str] | None = None` to the `WebhookUrlOption`
   dataclass. This carries predefined choices that the frontend renders
-  as typeahead suggestions.</p>
-</li>
-<li>
-<p>Update Jira's <code>WebhookUrlOption</code> in <code>integrations.py</code> to include the
-  eight supported field names in <code>options</code>.</p>
-</li>
-<li>
-<p>Update the backend serialization in <code>events.py</code> to pass <code>options</code> to
-  the frontend when present (using conditional dict unpacking).</p>
-</li>
-<li>
-<p>Update the Zod schema in <code>state_data.ts</code> and the <code>UrlOption</code> type /
-  <code>url_option_schema</code> in <code>integration_url_modal.ts</code> to accept the
-  optional <code>options</code> field.</p>
-</li>
-</ul>
-<p><strong>Design decision:</strong> <code>options</code> is optional and <code>None</code> by default, so
+  as typeahead suggestions.
+
+- Update Jira's `WebhookUrlOption` in `integrations.py` to include the
+  eight supported field names in `options`.
+
+- Update the backend serialization in `events.py` to pass `options` to
+  the frontend when present (using conditional dict unpacking).
+
+- Update the Zod schema in `state_data.ts` and the `UrlOption` type /
+  `url_option_schema` in `integration_url_modal.ts` to accept the
+  optional `options` field.
+
+**Design decision:** `options` is optional and `None` by default, so
 existing integrations are unaffected. The URL encoding remains a
 comma-separated string — backward compatible with manually constructed
-URLs.</p>
-<hr />
-<h3 id="commit-4-frontend-pill-based-ui-with-typeahead">Commit 4: Frontend — Pill-based UI with typeahead</h3>
-<p><strong>Files:</strong> <code>web/src/integration_field_pill.ts</code> (new),
-<code>web/templates/settings/generate_integration_url_config_pills_modal.hbs</code>
-(new), <code>web/src/integration_url_modal.ts</code>,
-<code>web/templates/settings/generate_integration_url_modal.hbs</code></p>
-<p><strong>What changes:</strong></p>
-<ul>
-<li><strong><code>integration_field_pill.ts</code></strong> — New module following the
-  <code>integration_branch_pill.ts</code> pattern:</li>
-<li>Defines <code>FieldPill</code> type (<code>{type: "field", field_name: string}</code>).</li>
-<li><code>create_pills()</code> creates the pill container using <code>input_pill.create</code>.</li>
-<li>
-<p><code>set_up_typeahead()</code> wires up <code>Typeahead</code> from
-    <code>bootstrap_typeahead.ts</code> on the pill input. The source function
+URLs.
+
+---
+
+### Commit 4: Frontend — Pill-based UI with typeahead
+
+**Files:** `web/src/integration_field_pill.ts` (new),
+`web/templates/settings/generate_integration_url_config_pills_modal.hbs`
+(new), `web/src/integration_url_modal.ts`,
+`web/templates/settings/generate_integration_url_modal.hbs`
+
+**What changes:**
+
+- **`integration_field_pill.ts`** — New module following the
+  `integration_branch_pill.ts` pattern:
+  - Defines `FieldPill` type (`{type: "field", field_name: string}`).
+  - `create_pills()` creates the pill container using `input_pill.create`.
+  - `set_up_typeahead()` wires up `Typeahead` from
+    `bootstrap_typeahead.ts` on the pill input. The source function
     filters out already-selected fields, so the typeahead only suggests
     options not yet added. Users can also type custom dot-path strings
-    and press Enter to create pills.</p>
-</li>
-<li>
-<p><strong><code>generate_integration_url_config_pills_modal.hbs</code></strong> — Minimal
-  template: a label and a <code>div.pill-container</code> with a contenteditable
-  input. No <code>&lt;select&gt;</code> dropdown — the typeahead handles suggestions.</p>
-</li>
-<li>
-<p><strong><code>integration_url_modal.ts</code></strong> changes:</p>
-</li>
-<li>Imports the new field pill module and template.</li>
-<li>Maintains a <code>Map&lt;string, FieldPillWidget&gt;</code> for pill widgets.</li>
-<li>In <code>render_url_options()</code>: when <code>option.options</code> is present, renders
+    and press Enter to create pills.
+
+- **`generate_integration_url_config_pills_modal.hbs`** — Minimal
+  template: a label and a `div.pill-container` with a contenteditable
+  input. No `<select>` dropdown — the typeahead handles suggestions.
+
+- **`integration_url_modal.ts`** changes:
+  - Imports the new field pill module and template.
+  - Maintains a `Map<string, FieldPillWidget>` for pill widgets.
+  - In `render_url_options()`: when `option.options` is present, renders
     the pill template, creates a pill widget, sets up typeahead, and
-    pre-populates with defaults (<code>priority</code>, <code>assignee</code> for Jira).</li>
-<li>In <code>update_url()</code>: reads pill items and joins with commas for the
-    URL parameter.</li>
-<li>
-<p>In <code>reset_to_blank_state()</code>: clears the pill widgets map.</p>
-</li>
-<li>
-<p><strong>Visibility toggle:</strong> The config options container starts hidden
-  (<code>class="hide"</code>) and is shown/hidden together with the events filter
-  checkbox ("Filter events that will trigger notifications?").</p>
-</li>
-</ul>
-<p><strong>UI behavior:</strong></p>
-<ul>
-<li>Clicking in the pill container shows typeahead suggestions from the
-  predefined options (minus already-selected ones).</li>
-<li>Typing filters the suggestions; pressing Enter or clicking a
-  suggestion adds a pill.</li>
-<li>Custom dot-path strings (e.g., <code>customfield_10042.name</code>) can be typed
-  directly and added as pills.</li>
-<li>Clicking × on a pill removes it.</li>
-<li>The URL updates live as pills are added/removed.</li>
-</ul>
-<hr />
-<h3 id="commit-5-documentation-update">Commit 5: Documentation update</h3>
-<p><strong>Files:</strong> <code>zerver/webhooks/jira/doc.md</code></p>
-<p><strong>What changes:</strong></p>
-<ul>
-<li>Documents the pill-based field selector in the URL generation modal.</li>
-<li>Documents custom dot-path notation for Jira custom fields.</li>
-<li>Removes the manual URL-parameter example (now handled by the UI).</li>
-</ul>
-<hr />
-<h3 id="files-touched">Files Touched</h3>
-<table>
-<thead>
-<tr>
-<th>File</th>
-<th>Change</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>zerver/webhooks/jira/view.py</code></td>
-<td><code>ISSUE_FIELDS_CONFIG</code>, <code>get_custom_field_bullet</code>, refactored field loop</td>
-</tr>
-<tr>
-<td><code>zerver/webhooks/jira/tests.py</code></td>
-<td>5 new test methods</td>
-</tr>
-<tr>
-<td><code>zerver/webhooks/jira/fixtures/created_with_versions_v1.json</code></td>
-<td>New fixture</td>
-</tr>
-<tr>
-<td><code>zerver/webhooks/jira/doc.md</code></td>
-<td>Updated docs</td>
-</tr>
-<tr>
-<td><code>zerver/lib/webhooks/common.py</code></td>
-<td><code>options</code> field on <code>WebhookUrlOption</code></td>
-</tr>
-<tr>
-<td><code>zerver/lib/integrations.py</code></td>
-<td>Jira <code>url_options</code> with <code>options</code> list</td>
-</tr>
-<tr>
-<td><code>zerver/lib/events.py</code></td>
-<td>Serialize <code>options</code> to frontend</td>
-</tr>
-<tr>
-<td><code>web/src/state_data.ts</code></td>
-<td>Schema update for <code>options</code></td>
-</tr>
-<tr>
-<td><code>web/src/integration_field_pill.ts</code></td>
-<td>New pill module with typeahead</td>
-</tr>
-<tr>
-<td><code>web/src/integration_url_modal.ts</code></td>
-<td>Pill rendering, URL building, visibility toggle</td>
-</tr>
-<tr>
-<td><code>web/templates/settings/generate_integration_url_config_pills_modal.hbs</code></td>
-<td>New pill template</td>
-</tr>
-<tr>
-<td><code>web/templates/settings/generate_integration_url_modal.hbs</code></td>
-<td>Config container starts hidden</td>
-</tr>
-</tbody>
-</table>
-<h3 id="future-extensibility">Future Extensibility</h3>
-<p>The <code>options</code> field on <code>WebhookUrlOption</code> is generic — any integration
-can adopt it. Potential candidates:</p>
-<ul>
-<li><strong>GitHub/GitLab:</strong> Configurable fields for issue/PR notifications
-  (labels, milestone, reviewers, etc.)</li>
-<li><strong>PagerDuty:</strong> Choose which incident fields to display</li>
-<li><strong>Sentry:</strong> Select error context fields</li>
-</ul>
-<p>Each integration would define its own <code>FIELDS_CONFIG</code> dict and add
-<code>options=</code> to its <code>WebhookUrlOption</code> — no framework changes needed.</p>
-<hr />
-<h2 id="timeline">Timeline</h2>
-<p>Here is how the implementation plan maps to the standard GSoC phases:</p>
-<h3 id="pre-community-bonding-community-bonding-april-1st-may-24">Pre-Community Bonding &amp; Community Bonding (April 1st – May 24)</h3>
-<ul>
-<li>Finalize discussions with mentors on integrating the <code>django-oauth-toolkit</code> and creating a more limited incoming webhook bot type.</li>
-<li>Set up the local development environment and prototype the OAuth endpoints.</li>
-</ul>
-<h3 id="coding-phase-1-may-25-july-6">Coding Phase 1 (May 25 – July 6)</h3>
-<ul>
-<li><strong>Backend Permissions System:</strong> Implement the core decorator in <code>zerver/decorator.py</code> and enforce the read-endpoint restrictions.</li>
-<li><strong>OAuth infrastructure:</strong> Integrate <code>django-oauth-toolkit</code> and build the backend consent screen and Bearer token ingestion.
-<em>(This ensures you have a robust backend ready before the Midterm Evaluation).</em></li>
-</ul>
-<h3 id="coding-phase-2-july-11-august-17">Coding Phase 2 (July 11 – August 17)</h3>
-<ul>
-<li><strong>UI/UX Revamp:</strong> Build the frontend "Add to Zulip" button, stream picker modal, and route it through the OAuth flow.</li>
-<li><strong>Custom Webhook Fields:</strong> Implement the pill-based UI with typeahead and backend config arrays for flexible field selection.</li>
-</ul>
-<h3 id="final-week-august-17-august-24">Final Week (August 17 – August 24)</h3>
-<ul>
-<li>Buffer for rigorous end-to-end testing, catching any edge cases in the OAuth flow, and finalizing documentation.</li>
-</ul>
+    pre-populates with defaults (`priority`, `assignee` for Jira).
+  - In `update_url()`: reads pill items and joins with commas for the
+    URL parameter.
+  - In `reset_to_blank_state()`: clears the pill widgets map.
+
+- **Visibility toggle:** The config options container starts hidden
+  (`class="hide"`) and is shown/hidden together with the events filter
+  checkbox ("Filter events that will trigger notifications?").
+
+**UI behavior:**
+
+- Clicking in the pill container shows typeahead suggestions from the
+  predefined options (minus already-selected ones).
+- Typing filters the suggestions; pressing Enter or clicking a
+  suggestion adds a pill.
+- Custom dot-path strings (e.g., `customfield_10042.name`) can be typed
+  directly and added as pills.
+- Clicking × on a pill removes it.
+- The URL updates live as pills are added/removed.
+
+---
+
+### Commit 5: Documentation update
+
+**Files:** `zerver/webhooks/jira/doc.md`
+
+**What changes:**
+
+- Documents the pill-based field selector in the URL generation modal.
+- Documents custom dot-path notation for Jira custom fields.
+- Removes the manual URL-parameter example (now handled by the UI).
+
+---
+
+### Files Touched
+
+| File | Change |
+|------|--------|
+| `zerver/webhooks/jira/view.py` | `ISSUE_FIELDS_CONFIG`, `get_custom_field_bullet`, refactored field loop |
+| `zerver/webhooks/jira/tests.py` | 5 new test methods |
+| `zerver/webhooks/jira/fixtures/created_with_versions_v1.json` | New fixture |
+| `zerver/webhooks/jira/doc.md` | Updated docs |
+| `zerver/lib/webhooks/common.py` | `options` field on `WebhookUrlOption` |
+| `zerver/lib/integrations.py` | Jira `url_options` with `options` list |
+| `zerver/lib/events.py` | Serialize `options` to frontend |
+| `web/src/state_data.ts` | Schema update for `options` |
+| `web/src/integration_field_pill.ts` | New pill module with typeahead |
+| `web/src/integration_url_modal.ts` | Pill rendering, URL building, visibility toggle |
+| `web/templates/settings/generate_integration_url_config_pills_modal.hbs` | New pill template |
+| `web/templates/settings/generate_integration_url_modal.hbs` | Config container starts hidden |
+
+### Future Extensibility
+
+The `options` field on `WebhookUrlOption` is generic — any integration
+can adopt it. Potential candidates:
+
+- **GitHub/GitLab:** Configurable fields for issue/PR notifications
+  (labels, milestone, reviewers, etc.)
+- **PagerDuty:** Choose which incident fields to display
+- **Sentry:** Select error context fields
+
+Each integration would define its own `FIELDS_CONFIG` dict and add
+`options=` to its `WebhookUrlOption` — no framework changes needed.
+ -->
               
             </div>
           </div><footer>
