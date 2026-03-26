@@ -1,0 +1,126 @@
+.cover-page {
+  text-align: center;
+  padding: 60px 40px 50px 40px;
+  border-bottom: 2px solid #e0e0e0;
+  margin-bottom: 40px;
+}
+
+.cover-page img {
+  width: 90px;
+  height: 90px;
+  margin-bottom: 24px;
+}
+
+.cover-title {
+  font-size: 2.4em;
+  font-weight: 700;
+  margin: 0 0 8px 0;
+  line-height: 1.2;
+}
+
+.cover-title span {
+  color: #6638b8;
+}
+
+.cover-meta {
+  text-align: right;
+  font-size: 0.95em;
+  color: #666;
+  margin-top: 6px;
+}
+
+.cover-subtitle {
+  font-size: 1.4em;
+  font-weight: 400;
+  color: #555;
+  margin: 0 0 32px 0;
+}
+
+.cover-author {
+  font-size: 1.1em;
+  color: #444;
+  margin: 0 0 40px 0;
+}
+
+.cover-project-box {
+  display: inline-block;
+  background: #f5f0ff;
+  border: 1px solid #c4a8f5;
+  border-radius: 8px;
+  padding: 20px 40px;
+  text-align: left;
+}
+
+.cover-project-label {
+  font-size: 0.8em;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: #888;
+  margin-bottom: 6px;
+}
+
+.cover-project-title {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: #2c2c2c;
+}
+
+.cover-project-subtitle {
+  font-size: 1em;
+  color: #555;
+  margin-top: 4px;
+}
+
+.cover-tags {
+  margin-top: 14px;
+}
+
+.cover-tag {
+  display: inline-block;
+  background: #e8dcff;
+  color: #5b2fa8;
+  border-radius: 4px;
+  padding: 2px 10px;
+  font-size: 0.85em;
+  font-weight: 500;
+  margin-right: 6px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-size: 0.8em;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+td:last-child {
+  text-align: center;
+}
+
+.badge-merged {
+  background: #6638b8;
+  color: white;
+}
+
+.badge-review {
+  background: #1a7a1a;
+  color: white;
+}
+
+.badge-maintainer {
+  background: #efa82c;
+  color: white;
+}
+
+table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+td,
+th {
+  white-space: normal !important;
+  word-break: break-word;
+}
