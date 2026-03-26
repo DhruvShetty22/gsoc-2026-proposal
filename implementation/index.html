@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Project Proposal - Dhruv Shetty – GSoC 2026 Proposal</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../stylesheets/extra.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Project Proposal";
+        var mkdocs_page_input_path = "implementation.md";
+        var mkdocs_page_url = null;
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> Dhruv Shetty – GSoC 2026 Proposal
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Introduction</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../contributions/">My Contributions</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Project Proposal</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../timeline/">Timeline</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../availability/">Availability</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">Dhruv Shetty – GSoC 2026 Proposal</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Project Proposal</li>
+    <li class="wy-breadcrumbs-aside">
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h2 id="a-gist-of-the-problem-statement">A gist of the Problem Statement</h2>
+<p>Setting up <strong>integrations</strong> in Zulip can be a daunting process for non-technical users. They are redirected to the administration panel to manually create and configure bots.
+Furthermore, the bot permission management lacks a user-friendly interface and a backend permissions system for managing bot permissions, making it difficult for users to grant integrations access to their Zulip data.</p>
+<h3 id="overview">Overview</h3>
+<p>What i understand based on the current state of the project of making integration easier for end users, many issues need serious discussions and decisions from the mentors and so the issues open are not directly implementable. For this proposal i tried to research and collect issues that are directly relevant to our end goal.
+I would like to summarize the plan to make integrations accessible to non-technical users, into the following three categories:</p>
+<ol>
+<li>
+<p><strong>Backend Bot Permissions System:</strong> This will cover the Design and implementation of backend permissions framework to manage and enforce what actions integration bots can perform.</p>
+</li>
+<li>
+<p><strong>OAuth Authorization Flow:</strong> Implement an OAuth system using the <strong>Django OAuth Toolkit</strong>. This will present a permission <em>authorization screen</em> to users when setting up an integration in order to provide better understanding to users of exactly what access they are granting.</p>
+</li>
+<li>
+<p><strong>UI/UX Revamp for the <code>/integrations</code> Page:</strong> We need to add intuitive buttons to directly create bots and add integrations, entirely removing the friction of navigating through the administration panel.</p>
+</li>
+</ol>
+<h2 id="backend-bot-permissions-system">Backend Bot Permissions System</h2>
+<p><strong>Problem:</strong> Zulip's <code>INCOMING_WEBHOOK_BOT</code> type is documented as write-only, but this is never enforced at runtime. Once a bot has an API key, it can call any endpoint regardless of its type — a webhook bot could read messages it was never meant to access.</p>
+<p>A new decorator in <code>zerver/decorator.py</code> will reject API requests from <code>INCOMING_WEBHOOK_BOT</code> on read endpoints, wired into the central dispatcher in <code>zerver/lib/rest.py</code> so the restriction applies consistently. The enforcement will be documented in the OpenAPI spec so integration developers understand the security boundary.</p>
+<h3 id="relevant-issues">Relevant Issues</h3>
+<ul>
+<li><a href="https://github.com/zulip/zulip/issues/16431">#16431: Notify bot owners if bot tries to send to a channel it does not have access to</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/30077">#30077: Make name change permissions more flexible (groups-based permissions)</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/22405">#22405: Clearly document bot roles</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/13927">#13927: Make custom field viewing permissions configurable</a></li>
+</ul>
+<hr />
+<h2 id="oauth-authorization-flow">OAuth Authorization Flow</h2>
+<h3 id="the-problem">The Problem</h3>
+<p>Integrations authenticate with a static API key embedded in the webhook URL (<code>/api/v1/external/github?api_key=abc</code>). This has three gaps: the key grants broad access with no way to limit scope, revoking one integration means regenerating the key for every integration sharing that bot, and users never see or approve what the integration can do — the credential is silently issued.</p>
+<h3 id="current-flow-vs-oauth-flow">Current Flow vs OAuth Flow</h3>
+<p><strong>Current flow:</strong> User clicks "Add to Zulip" → modal appears → <code>POST /json/integration_bots</code> → webhook URL with <code>?api_key=abc</code> returned. The API key in that URL has no scope limits — if it leaks or the service is compromised, it has the same access as the bot that owns it.</p>
+<p><strong>OAuth flow:</strong> User clicks "Add to Zulip" → redirected to <code>/oauth/authorize/?scope=webhook:send&amp;client_id=...</code> → consent screen shows "This app wants to: Send messages via incoming webhooks" → user clicks Authorize → authorization code issued → token exchange → webhook URL using <code>Authorization: Bearer &lt;token&gt;</code>.</p>
+<p>The key difference: <strong>the user explicitly sees and approves what the integration can do before any credential is issued.</strong> The token is scoped — a <code>webhook:send</code> token can only send webhook messages, not read streams or manage bots. Each token can be revoked independently without affecting other integrations.</p>
+<h3 id="why-django-oauth-toolkit">Why <code>django-oauth-toolkit</code></h3>
+<p>Zulip already uses <code>social-auth-app-django</code> for OAuth as a <em>consumer</em> (letting users log in via GitHub, Google, etc.). Making Zulip an OAuth <em>provider</em> is a different problem — it needs to issue tokens, not consume them. <code>django-oauth-toolkit</code> (DOT) is the standard Django library for this. It provides the authorization, token, and revocation endpoints, uses <code>AUTH_USER_MODEL</code> (already set to <code>zerver.UserProfile</code>), and its models (<code>Application</code>, <code>AccessToken</code>, <code>RefreshToken</code>) integrate cleanly with Zulip's Django 5.2 stack without requiring custom database models.</p>
+<p>Critically, DOT does not require its own middleware. Zulip has a custom auth routing system in <code>rest_dispatch()</code> that selects authentication strategy based on the request path and headers. Adding DOT middleware would conflict with this. Instead, Bearer tokens are handled explicitly in <code>rest_dispatch()</code> alongside the existing Basic auth path — DOT is used only for its models and endpoint views, not its middleware.</p>
+<h3 id="implementation-plan">Implementation Plan</h3>
+<p>The implementation covers four areas:</p>
+<p><strong>1. Infrastructure — Scopes and the ZulipScopesBackend</strong></p>
+<p>DOT uses a pluggable scopes backend to determine what scopes exist and what descriptions to show on the consent screen. The default backend reads a flat dictionary from settings, but Zulip needs scopes that map to its bot permission model. <code>ZulipScopesBackend</code> extends DOT's <code>BaseScopes</code> and provides this mapping:</p>
+<pre><code class="language-python">OAUTH2_PROVIDER = {
+    &quot;SCOPES&quot;: {
+        &quot;webhook:send&quot;: &quot;Send messages via incoming webhooks&quot;,
+        &quot;bot:read&quot;:     &quot;Read bot information&quot;,
+        &quot;bot:write&quot;:    &quot;Create and manage bots&quot;,
+    },
+    &quot;DEFAULT_SCOPES&quot;: [&quot;webhook:send&quot;],
+    &quot;SCOPES_BACKEND_CLASS&quot;: &quot;zerver.lib.oauth2_scopes.ZulipScopesBackend&quot;,
+}
+</code></pre>
+<p>The backend is called at two points: during authorization (to validate requested scopes and render descriptions on the consent screen) and during token creation (to assign the granted scopes to the <code>AccessToken</code>). The scope names are designed to map directly to bot type restrictions from the permissions layer:</p>
+<table>
+<thead>
+<tr>
+<th>Scope</th>
+<th>Bot Type</th>
+<th>Runtime Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>webhook:send</code></td>
+<td><code>INCOMING_WEBHOOK_BOT</code></td>
+<td>Can only post to webhook endpoints and send messages</td>
+</tr>
+<tr>
+<td><code>bot:read</code></td>
+<td><code>DEFAULT_BOT</code> (read)</td>
+<td>Can read messages, streams, user data</td>
+</tr>
+<tr>
+<td><code>bot:write</code></td>
+<td><code>DEFAULT_BOT</code> (write)</td>
+<td>Can send messages, manage streams, modify data</td>
+</tr>
+</tbody>
+</table>
+<p>This connection is what makes the permissions layer and OAuth scopes two sides of the same coin — the permissions layer enforces at runtime, and the scopes communicate those restrictions to users on the consent screen.</p>
+<p><strong>2. Bearer Token Authentication — Extending <code>rest_dispatch()</code></strong></p>
+<p>Every API request flows through <code>rest_dispatch()</code> in <code>zerver/lib/rest.py</code>, which selects the authentication method based on the request path and headers. Today, <code>/api</code> paths with an <code>Authorization</code> header always go through <code>authenticated_rest_api_view()</code>, which calls <code>get_basic_credentials()</code> and rejects anything that isn't HTTP Basic auth.</p>
+<p>The change adds a single branch before this existing path:</p>
+<pre><code class="language-python">elif request.path.startswith(&quot;/api&quot;) and &quot;Authorization&quot; in request.headers:
+    auth_type = request.headers[&quot;Authorization&quot;].split(None, 1)[0].lower()
+    if auth_type == &quot;bearer&quot;:
+        target_function = authenticated_oauth2_api_view(...)(target_function)
+    else:
+        target_function = authenticated_rest_api_view(...)(target_function)
+</code></pre>
+<p>The <code>else</code> branch is the existing Basic auth path — completely untouched. This is a strictly additive change. The new <code>authenticated_oauth2_api_view()</code> decorator follows the same structure as <code>authenticated_rest_api_view()</code>: it extracts credentials (Bearer token instead of Basic auth), validates the user (via DOT's <code>AccessToken</code> model instead of <code>access_user_by_api_key()</code>), checks account status and subdomain (reusing <code>validate_account_and_subdomain()</code>), rate-limits, and calls the view function. The granted scopes are attached to the request as <code>request.oauth2_scopes</code> for downstream enforcement.</p>
+<p><strong>3. Authorization Consent Screen</strong></p>
+<p>The consent screen extends Zulip's <code>portico.html</code> base template so it inherits the standard page chrome. It shows the requesting application's name, a list of scope descriptions (rendered from the scopes backend), and Authorize/Deny buttons. The form uses PKCE (Proof Key for Code Exchange) with S256 challenges — required by DOT 3.x to prevent authorization code interception attacks.</p>
+<p>A design consideration: Zulip uses Jinja2 for server-side templates, not Django's template engine. DOT's default templates use Django template tags (<code>{% url %}</code>), so the custom consent template uses hardcoded paths (<code>/oauth/authorize/</code>) and Jinja2 syntax (<code>{{ form.as_p() }}</code>) instead.</p>
+<p><strong>4. Connect to <code>/integrations</code></strong></p>
+<p>The "Add to Zulip" button currently calls <code>POST /json/integration_bots</code> directly and returns a webhook URL with an embedded API key. In the OAuth-enabled version, integrations that have registered OAuth applications show an alternative flow: the button redirects to <code>/oauth/authorize/</code> with the integration's <code>client_id</code> and requested scopes. After the user approves, the callback page completes the token exchange and displays the webhook URL configured to use <code>Authorization: Bearer &lt;token&gt;</code> instead of <code>?api_key=</code>.</p>
+<p>Both flows coexist — self-hosted integrations can continue using direct API keys, while third-party services use the OAuth consent flow.</p>
+<h3 id="per-endpoint-scope-enforcement">Per-Endpoint Scope Enforcement</h3>
+<p>The prototype grants scopes and attaches them to tokens, but does not yet enforce them per-endpoint. The full implementation extends the <code>view_flags</code> system already used by <code>rest_dispatch()</code> (e.g., <code>allow_incoming_webhooks</code>) to carry scope requirements:</p>
+<pre><code class="language-python"># In urls.py — scope requirements declared alongside routes
+rest_path(
+    &quot;messages&quot;,
+    POST=(send_message_backend, {&quot;allow_incoming_webhooks&quot;, &quot;oauth_scopes:webhook:send&quot;}),
+    GET=(get_messages_backend, {&quot;oauth_scopes:bot:read&quot;}),
+),
+</code></pre>
+<p>At dispatch time, <code>rest_dispatch()</code> extracts flags prefixed with <code>oauth_scopes:</code> and passes them to <code>authenticated_oauth2_api_view()</code>, which checks them against <code>request.oauth2_scopes</code>. A token with only <code>webhook:send</code> gets a 403 on <code>GET /api/v1/messages</code>; a token with <code>bot:read</code> succeeds. Basic auth requests bypass scope checks entirely — this is an OAuth-only restriction, so existing API key clients are unaffected.</p>
+<p>This approach keeps scope policy in the URL routing layer where it's auditable in one place, avoids modifying every view function, and follows the same pattern Zulip already uses for <code>allow_incoming_webhooks</code>.</p>
+<h3 id="connection-to-bot-permissions">Connection to Bot Permissions</h3>
+<p>This is where the two systems merge. Once the permissions layer rejects <code>INCOMING_WEBHOOK_BOT</code> from read endpoints at runtime, the OAuth scope <code>webhook:send</code> doesn't just <em>describe</em> a restriction — it <em>is</em> the restriction, enforced on every API call through the same code path. Building the enforcement layer first ensures the OAuth scopes have real meaning: they gate actual runtime checks, not just creation-time labels.</p>
+<h3 id="relevant-issues_1">Relevant Issues</h3>
+<ul>
+<li><a href="https://github.com/zulip/zulip/issues/17042">#17042: feature request: Make Zulip an OAuth Provider.</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/452">#452: Support for OAuth2 token authentication for API?</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/38149">#38149: Add Discord as an OAuth provider</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/12803">#12803: Allow revoking OAuth login</a></li>
+</ul>
+<hr />
+<h2 id="uiux-revamp-for-the-integrations-page">UI/UX Revamp for the <code>/integrations</code> Page</h2>
+<h3 id="relevant-issues_2">Relevant Issues</h3>
+<ul>
+<li><a href="https://github.com/zulip/zulip/issues/36564">#36564: Improve "Generate integration URL" modal's "Topic" field.</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/33788">#33788: Add "copy" button to URL in "Generate URL for an integration" modal</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/34269">#34269: New integration request: Quire (link preview)</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/36824">#36824: Add a built-in RSS/Atom integration to replace the existing one</a></li>
+</ul>
+<h3 id="the-gap">The Gap</h3>
+<p>Every integration's setup page opens with a plain-text instruction to navigate to Settings → Bots, create a bot manually, copy the API key, and return. The infrastructure for bot creation is fully in place — <code>POST /json/bots</code> handles creation and <code>can_create_incoming_webhooks()</code> already checks the right permissions — none of it is wired to the integrations page. This directly addresses issues <a href="https://github.com/zulip/zulip/issues/9815">#9815</a> and <a href="https://github.com/zulip/zulip/issues/692">#692</a>.</p>
+<p>Issue <a href="https://github.com/zulip/zulip/issues/30139">#30139</a> (auto-populate bot avatar) is also related — the "Add to Zulip" flow handles this naturally since the integration is already known from context, so the avatar assigns automatically without an extra selector.</p>
+<p><img alt="Add to Zulip modal mockup" src="../assets/add_to_zulip.png" /></p>
+<h3 id="plan">Plan</h3>
+<p>The full flow from button click to a ready-to-use webhook URL:</p>
+<pre><code>&quot;Add to Zulip&quot; button (doc.html)
+    → Stream picker modal (add_to_zulip_modal.hbs)
+        → POST /json/bots  [bot_type=INCOMING_WEBHOOK_BOT, avatar=integration logo]
+            → integration_url_modal.ts  [pre-filled with new bot's API key + stream]
+</code></pre>
+<ul>
+<li>
+<p><strong>Backend</strong> — <code>zerver/views/documentation.py</code> passes a <code>user_can_create_webhook</code> flag to the integration doc template, derived from existing group-based permission checks. The button is only rendered server-side for users who can act on it; unauthenticated visitors see a sign-in prompt instead.</p>
+</li>
+<li>
+<p><strong>Button</strong> — Conditionally rendered in <code>templates/zerver/integrations/doc.html</code> with <code>data-</code> attributes carrying the integration name and logo, so the frontend needs no extra API call to create the bot.</p>
+</li>
+<li>
+<p><strong>Stream picker modal</strong> — A lightweight modal (not the full bot creation form) where the user only picks a stream. Bot type, name, and avatar are derived automatically from the integration context. On confirmation, <code>portico/integrations.ts</code> calls <code>POST /json/bots</code> and on success opens <code>integration_url_modal.ts</code> pre-filled with the new bot's API key and selected stream.</p>
+</li>
+</ul>
+<hr />
+<h2 id="how-the-three-objectives-connect">How the Three Objectives Connect</h2>
+<p>The three objectives are designed as a layered system, each building on the one before:</p>
+<ul>
+<li>
+<p><strong>Permissions → OAuth</strong> — The decorator-based enforcement in <code>zerver/decorator.py</code> gives real meaning to OAuth scopes. Each scope (<code>webhook:send</code>, <code>bot:read</code>, <code>bot:write</code>) maps directly to a bot type restriction that is already enforced at runtime — scopes gate actual API checks, not just labels.</p>
+</li>
+<li>
+<p><strong>OAuth → UI</strong> — The "Add to Zulip" button is the user-facing entry point to the OAuth flow. In the base implementation it calls <code>POST /json/bots</code> directly; in the OAuth-enabled version, clicking the button routes through the consent screen so the user sees and approves exactly what the integration can do before a bot is created.</p>
+</li>
+<li>
+<p><strong>Permissions → UI</strong> — The <code>user_can_create_webhook</code> flag passed to the integration doc template is derived from the same <code>can_create_bots_group</code> / <code>can_create_write_only_bots_group</code> permission groups the backend enforcement layer manages, keeping permission logic consistent across both surfaces.</p>
+</li>
+</ul>
+<hr />
+<h2 id="customizable-webhook-notification-fields">Customizable Webhook Notification Fields</h2>
+<h3 id="problem">Problem</h3>
+<p>Zulip's incoming webhook integrations display a fixed set of fields in
+notifications. For example, when a Jira issue is created, only
+<strong>Priority</strong> and <strong>Assignee</strong> are shown and users cannot choose to see
+<strong>Project</strong>, <strong>Version</strong>, <strong>Reporter</strong>, or custom Jira fields without
+editing the webhook handler code.</p>
+<h3 id="goal">Goal</h3>
+<p>Allow users to configure which fields appear in webhook notifications
+through the existing "Generate URL for an integration" modal, using a
+pill-based UI with typeahead suggestions. The solution should be generic
+enough that other integrations (GitHub, GitLab, PagerDuty, etc.) can
+adopt the same pattern.</p>
+<hr />
+<h3 id="architecture-overview">Architecture Overview</h3>
+<p>The implementation spans four layers:</p>
+<pre><code>┌─────────────────────────────────────────────────┐
+│  Frontend: Pill UI + Typeahead                  │
+│  (integration_url_modal.ts,                     │
+│   integration_field_pill.ts)                    │
+├─────────────────────────────────────────────────┤
+│  Data Transport: WebhookUrlOption.options        │
+│  (events.py → state_data.ts)                    │
+├─────────────────────────────────────────────────┤
+│  Integration Registry                           │
+│  (integrations.py, webhooks/common.py)          │
+├─────────────────────────────────────────────────┤
+│  Webhook Handler: Field Resolution              │
+│  (e.g., zerver/webhooks/jira/view.py)           │
+└─────────────────────────────────────────────────┘
+</code></pre>
+<hr />
+<h3 id="commit-1-backend-configurable-fields-for-jira-issue-creation">Commit 1: Backend — Configurable fields for Jira issue creation</h3>
+<p><strong>Files:</strong> <code>zerver/webhooks/jira/view.py</code>, <code>zerver/webhooks/jira/tests.py</code>,
+<code>zerver/webhooks/jira/fixtures/created_with_versions_v1.json</code>,
+<code>zerver/lib/integrations.py</code>, <code>zerver/webhooks/jira/doc.md</code></p>
+<p><strong>What changes:</strong></p>
+<ul>
+<li>
+<p>Define an <code>ISSUE_FIELDS_CONFIG</code> dictionary that maps short field names
+  (<code>priority</code>, <code>assignee</code>, <code>project</code>, <code>version</code>, <code>status</code>, <code>reporter</code>,
+  <code>issuetype</code>, <code>description</code>) to tuples of <code>(json_path_keys, label,
+  default_value)</code>.</p>
+</li>
+<li>
+<p>Add a <code>created_issue_fields</code> URL parameter to the Jira webhook
+  endpoint (default: <code>"priority,assignee"</code>), accepted as a
+  comma-separated string.</p>
+</li>
+<li>
+<p>Refactor <code>handle_created_issue_event</code> from hardcoded Priority/Assignee
+  bullets to a data-driven loop over <code>ISSUE_FIELDS_CONFIG</code>.</p>
+</li>
+<li>
+<p>Update <code>get_in()</code> type signature from <code>list[str]</code> to <code>list[str | int]</code>
+  to support integer indexing (needed for <code>fixVersions[0].name</code>).</p>
+</li>
+<li>
+<p>Remove <code>handle_created_issue_event</code> from <code>JIRA_CONTENT_FUNCTION_MAPPER</code>
+  (set to <code>None</code>) since it now takes an extra parameter; handle it
+  directly in <code>api_jira_webhook</code>.</p>
+</li>
+<li>
+<p>Register a <code>WebhookUrlOption</code> for <code>created_issue_fields</code> on the Jira
+  integration in <code>integrations.py</code>.</p>
+</li>
+<li>
+<p>Fall back to default fields when no valid field names are provided.</p>
+</li>
+</ul>
+<p><strong>Tests added:</strong></p>
+<ul>
+<li><code>test_created_with_invalid_fields_falls_back_to_default</code> — garbage
+  field names produce the default (priority + assignee) output.</li>
+<li><code>test_created_with_custom_fields_missing_version</code> — requesting
+  <code>project,version</code> on a payload with empty <code>fixVersions</code> shows only
+  Project.</li>
+<li><code>test_created_with_custom_fields</code> — requesting <code>project,version</code> on a
+  payload with populated <code>fixVersions</code> shows both.</li>
+</ul>
+<p><strong>New fixture:</strong> <code>created_with_versions_v1.json</code> — clone of <code>created_v1</code>
+with a populated <code>fixVersions</code> array.</p>
+<hr />
+<h3 id="commit-2-backend-custom-dot-path-field-support">Commit 2: Backend — Custom dot-path field support</h3>
+<p><strong>Files:</strong> <code>zerver/webhooks/jira/view.py</code>, <code>zerver/webhooks/jira/tests.py</code></p>
+<p><strong>What changes:</strong></p>
+<ul>
+<li>
+<p>Add <code>get_custom_field_bullet(payload, field_path)</code> that resolves
+  arbitrary dot-separated paths (e.g., <code>project.name</code>,
+  <code>customfield_10042.name</code>) against <code>issue.fields</code> in the Jira payload.
+  Numeric path segments are treated as list indices.</p>
+</li>
+<li>
+<p>Update the field resolution loop in <code>handle_created_issue_event</code> to try
+  <code>ISSUE_FIELDS_CONFIG</code> first, then fall back to dot-path resolution for
+  fields containing a <code>.</code>. Falls back to defaults only when <em>no</em> field
+  (whitelisted or dot-path) produces output.</p>
+</li>
+<li>
+<p>The last segment of the dot-path is used as the display label,
+  title-cased with underscores replaced by spaces.</p>
+</li>
+</ul>
+<p><strong>Tests added:</strong></p>
+<ul>
+<li><code>test_created_with_custom_dot_path_field</code> — <code>project.name</code> resolves
+  correctly.</li>
+<li><code>test_created_with_mixed_whitelisted_and_dot_path_fields</code> —
+  <code>priority,project.name</code> combines both resolution strategies.</li>
+</ul>
+<hr />
+<h3 id="commit-3-infrastructure-options-field-on-webhookurloption">Commit 3: Infrastructure — <code>options</code> field on <code>WebhookUrlOption</code></h3>
+<p><strong>Files:</strong> <code>zerver/lib/webhooks/common.py</code>, <code>zerver/lib/integrations.py</code>,
+<code>zerver/lib/events.py</code>, <code>web/src/state_data.ts</code>,
+<code>web/src/integration_url_modal.ts</code></p>
+<p><strong>What changes:</strong></p>
+<ul>
+<li>
+<p>Add <code>options: list[str] | None = None</code> to the <code>WebhookUrlOption</code>
+  dataclass. This carries predefined choices that the frontend renders
+  as typeahead suggestions.</p>
+</li>
+<li>
+<p>Update Jira's <code>WebhookUrlOption</code> in <code>integrations.py</code> to include the
+  eight supported field names in <code>options</code>.</p>
+</li>
+<li>
+<p>Update the backend serialization in <code>events.py</code> to pass <code>options</code> to
+  the frontend when present (using conditional dict unpacking).</p>
+</li>
+<li>
+<p>Update the Zod schema in <code>state_data.ts</code> and the <code>UrlOption</code> type /
+  <code>url_option_schema</code> in <code>integration_url_modal.ts</code> to accept the
+  optional <code>options</code> field.</p>
+</li>
+</ul>
+<p><strong>Design decision:</strong> <code>options</code> is optional and <code>None</code> by default, so
+existing integrations are unaffected. The URL encoding remains a
+comma-separated string — backward compatible with manually constructed
+URLs.</p>
+<hr />
+<h3 id="commit-4-frontend-pill-based-ui-with-typeahead">Commit 4: Frontend — Pill-based UI with typeahead</h3>
+<p><strong>Files:</strong> <code>web/src/integration_field_pill.ts</code> (new),
+<code>web/templates/settings/generate_integration_url_config_pills_modal.hbs</code>
+(new), <code>web/src/integration_url_modal.ts</code>,
+<code>web/templates/settings/generate_integration_url_modal.hbs</code></p>
+<p><strong>What changes:</strong></p>
+<ul>
+<li><strong><code>integration_field_pill.ts</code></strong> — New module following the
+  <code>integration_branch_pill.ts</code> pattern:</li>
+<li>Defines <code>FieldPill</code> type (<code>{type: "field", field_name: string}</code>).</li>
+<li><code>create_pills()</code> creates the pill container using <code>input_pill.create</code>.</li>
+<li>
+<p><code>set_up_typeahead()</code> wires up <code>Typeahead</code> from
+    <code>bootstrap_typeahead.ts</code> on the pill input. The source function
+    filters out already-selected fields, so the typeahead only suggests
+    options not yet added. Users can also type custom dot-path strings
+    and press Enter to create pills.</p>
+</li>
+<li>
+<p><strong><code>generate_integration_url_config_pills_modal.hbs</code></strong> — Minimal
+  template: a label and a <code>div.pill-container</code> with a contenteditable
+  input. No <code>&lt;select&gt;</code> dropdown — the typeahead handles suggestions.</p>
+</li>
+<li>
+<p><strong><code>integration_url_modal.ts</code></strong> changes:</p>
+</li>
+<li>Imports the new field pill module and template.</li>
+<li>Maintains a <code>Map&lt;string, FieldPillWidget&gt;</code> for pill widgets.</li>
+<li>In <code>render_url_options()</code>: when <code>option.options</code> is present, renders
+    the pill template, creates a pill widget, sets up typeahead, and
+    pre-populates with defaults (<code>priority</code>, <code>assignee</code> for Jira).</li>
+<li>In <code>update_url()</code>: reads pill items and joins with commas for the
+    URL parameter.</li>
+<li>
+<p>In <code>reset_to_blank_state()</code>: clears the pill widgets map.</p>
+</li>
+<li>
+<p><strong>Visibility toggle:</strong> The config options container starts hidden
+  (<code>class="hide"</code>) and is shown/hidden together with the events filter
+  checkbox ("Filter events that will trigger notifications?").</p>
+</li>
+</ul>
+<p><strong>UI behavior:</strong></p>
+<ul>
+<li>Clicking in the pill container shows typeahead suggestions from the
+  predefined options (minus already-selected ones).</li>
+<li>Typing filters the suggestions; pressing Enter or clicking a
+  suggestion adds a pill.</li>
+<li>Custom dot-path strings (e.g., <code>customfield_10042.name</code>) can be typed
+  directly and added as pills.</li>
+<li>Clicking × on a pill removes it.</li>
+<li>The URL updates live as pills are added/removed.</li>
+</ul>
+<hr />
+<h3 id="commit-5-documentation-update">Commit 5: Documentation update</h3>
+<p><strong>Files:</strong> <code>zerver/webhooks/jira/doc.md</code></p>
+<p><strong>What changes:</strong></p>
+<ul>
+<li>Documents the pill-based field selector in the URL generation modal.</li>
+<li>Documents custom dot-path notation for Jira custom fields.</li>
+<li>Removes the manual URL-parameter example (now handled by the UI).</li>
+</ul>
+<hr />
+<h3 id="files-touched">Files Touched</h3>
+<table>
+<thead>
+<tr>
+<th>File</th>
+<th>Change</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>zerver/webhooks/jira/view.py</code></td>
+<td><code>ISSUE_FIELDS_CONFIG</code>, <code>get_custom_field_bullet</code>, refactored field loop</td>
+</tr>
+<tr>
+<td><code>zerver/webhooks/jira/tests.py</code></td>
+<td>5 new test methods</td>
+</tr>
+<tr>
+<td><code>zerver/webhooks/jira/fixtures/created_with_versions_v1.json</code></td>
+<td>New fixture</td>
+</tr>
+<tr>
+<td><code>zerver/webhooks/jira/doc.md</code></td>
+<td>Updated docs</td>
+</tr>
+<tr>
+<td><code>zerver/lib/webhooks/common.py</code></td>
+<td><code>options</code> field on <code>WebhookUrlOption</code></td>
+</tr>
+<tr>
+<td><code>zerver/lib/integrations.py</code></td>
+<td>Jira <code>url_options</code> with <code>options</code> list</td>
+</tr>
+<tr>
+<td><code>zerver/lib/events.py</code></td>
+<td>Serialize <code>options</code> to frontend</td>
+</tr>
+<tr>
+<td><code>web/src/state_data.ts</code></td>
+<td>Schema update for <code>options</code></td>
+</tr>
+<tr>
+<td><code>web/src/integration_field_pill.ts</code></td>
+<td>New pill module with typeahead</td>
+</tr>
+<tr>
+<td><code>web/src/integration_url_modal.ts</code></td>
+<td>Pill rendering, URL building, visibility toggle</td>
+</tr>
+<tr>
+<td><code>web/templates/settings/generate_integration_url_config_pills_modal.hbs</code></td>
+<td>New pill template</td>
+</tr>
+<tr>
+<td><code>web/templates/settings/generate_integration_url_modal.hbs</code></td>
+<td>Config container starts hidden</td>
+</tr>
+</tbody>
+</table>
+<h3 id="future-extensibility">Future Extensibility</h3>
+<p>The <code>options</code> field on <code>WebhookUrlOption</code> is generic — any integration
+can adopt it. Potential candidates:</p>
+<ul>
+<li><strong>GitHub/GitLab:</strong> Configurable fields for issue/PR notifications
+  (labels, milestone, reviewers, etc.)</li>
+<li><strong>PagerDuty:</strong> Choose which incident fields to display</li>
+<li><strong>Sentry:</strong> Select error context fields</li>
+</ul>
+<p>Each integration would define its own <code>FIELDS_CONFIG</code> dict and add
+<code>options=</code> to its <code>WebhookUrlOption</code> — no framework changes needed.</p>
+<hr />
+<h2 id="timeline">Timeline</h2>
+<p>Here is how the implementation plan maps to the standard GSoC phases:</p>
+<h3 id="pre-community-bonding-community-bonding-april-1st-may-24">Pre-Community Bonding &amp; Community Bonding (April 1st – May 24)</h3>
+<ul>
+<li>Finalize discussions with mentors on integrating the <code>django-oauth-toolkit</code> and creating a more limited incoming webhook bot type.</li>
+<li>Set up the local development environment and prototype the OAuth endpoints.</li>
+</ul>
+<h3 id="coding-phase-1-may-25-july-6">Coding Phase 1 (May 25 – July 6)</h3>
+<ul>
+<li><strong>Backend Permissions System:</strong> Implement the core decorator in <code>zerver/decorator.py</code> and enforce the read-endpoint restrictions.</li>
+<li><strong>OAuth infrastructure:</strong> Integrate <code>django-oauth-toolkit</code> and build the backend consent screen and Bearer token ingestion.
+<em>(This ensures you have a robust backend ready before the Midterm Evaluation).</em></li>
+</ul>
+<h3 id="coding-phase-2-july-11-august-17">Coding Phase 2 (July 11 – August 17)</h3>
+<ul>
+<li><strong>UI/UX Revamp:</strong> Build the frontend "Add to Zulip" button, stream picker modal, and route it through the OAuth flow.</li>
+<li><strong>Custom Webhook Fields:</strong> Implement the pill-based UI with typeahead and backend config arrays for flexible field selection.</li>
+</ul>
+<h3 id="final-week-august-17-august-24">Final Week (August 17 – August 24)</h3>
+<ul>
+<li>Buffer for rigorous end-to-end testing, catching any edge cases in the OAuth flow, and finalizing documentation.</li>
+</ul>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../contributions/" class="btn btn-neutral float-left" title="My Contributions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../timeline/" class="btn btn-neutral float-right" title="Timeline">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../contributions/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../timeline/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
