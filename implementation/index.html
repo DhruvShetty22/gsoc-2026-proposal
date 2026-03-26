@@ -53,6 +53,24 @@
     <ul class="current">
     <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
     </li>
+    <li class="toctree-l2"><a class="reference internal" href="#backend-bot-permissions-system">Backend Bot Permissions System</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#oauth-authorization-flow">OAuth Authorization Flow</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#why-django-oauth-toolkit">Why django-oauth-toolkit</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#per-endpoint-scope-enforcement">Per-Endpoint Scope Enforcement</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#connection-to-bot-permissions">Connection to Bot Permissions</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#relevant-issues">Relevant Issues</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#uiux-revamp-for-the-integrations-page">UI/UX Revamp for the /integrations Page</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#the-gap">The Gap</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#plan">Plan</a>
+    </li>
     </ul>
                 </li>
               </ul>
@@ -104,10 +122,10 @@ I would like to summarize the plan to make integrations accessible to non-techni
 <p><strong>UI/UX Revamp for the <code>/integrations</code> Page:</strong> We need to add intuitive buttons to directly create bots and add integrations, entirely removing the friction of navigating through the administration panel.</p>
 </li>
 </ol>
-<h2 id="backend-bot-permissions-system">Backend Bot Permissions System</h2>
+<h3 id="backend-bot-permissions-system">Backend Bot Permissions System</h3>
 <p><strong>Problem:</strong> Zulip's <code>INCOMING_WEBHOOK_BOT</code> type is documented as write-only, but this is never enforced at runtime. Once a bot has an API key, it can call any endpoint regardless of its type — a webhook bot could read messages it was never meant to access.</p>
 <p>A new decorator in <code>zerver/decorator.py</code> will reject API requests from <code>INCOMING_WEBHOOK_BOT</code> on read endpoints, wired into the central dispatcher in <code>zerver/lib/rest.py</code> so the restriction applies consistently. The enforcement will be documented in the OpenAPI spec so integration developers understand the security boundary.</p>
-<h3 id="relevant-issues">Relevant Issues</h3>
+<p><strong>Relevant Issues</strong></p>
 <ul>
 <li><a href="https://github.com/zulip/zulip/issues/16431">#16431: Notify bot owners if bot tries to send to a channel it does not have access to</a></li>
 <li><a href="https://github.com/zulip/zulip/issues/30077">#30077: Make name change permissions more flexible (groups-based permissions)</a></li>
@@ -115,17 +133,15 @@ I would like to summarize the plan to make integrations accessible to non-techni
 <li><a href="https://github.com/zulip/zulip/issues/13927">#13927: Make custom field viewing permissions configurable</a></li>
 </ul>
 <hr />
-<h2 id="oauth-authorization-flow">OAuth Authorization Flow</h2>
-<h3 id="the-problem">The Problem</h3>
-<p>Integrations authenticate with a static API key embedded in the webhook URL (<code>/api/v1/external/github?api_key=abc</code>). This has three gaps: the key grants broad access with no way to limit scope, revoking one integration means regenerating the key for every integration sharing that bot, and users never see or approve what the integration can do — the credential is silently issued.</p>
-<h3 id="current-flow-vs-oauth-flow">Current Flow vs OAuth Flow</h3>
+<h3 id="oauth-authorization-flow">OAuth Authorization Flow</h3>
+<p><strong>Problem:</strong> Integrations authenticate with a static API key embedded in the webhook URL (<code>/api/v1/external/github?api_key=abc</code>). This has three gaps: the key grants broad access with no way to limit scope, revoking one integration means regenerating the key for every integration sharing that bot, and users never see or approve what the integration can do — the credential is silently issued.</p>
 <p><strong>Current flow:</strong> User clicks "Add to Zulip" → modal appears → <code>POST /json/integration_bots</code> → webhook URL with <code>?api_key=abc</code> returned. The API key in that URL has no scope limits — if it leaks or the service is compromised, it has the same access as the bot that owns it.</p>
 <p><strong>OAuth flow:</strong> User clicks "Add to Zulip" → redirected to <code>/oauth/authorize/?scope=webhook:send&amp;client_id=...</code> → consent screen shows "This app wants to: Send messages via incoming webhooks" → user clicks Authorize → authorization code issued → token exchange → webhook URL using <code>Authorization: Bearer &lt;token&gt;</code>.</p>
 <p>The key difference: <strong>the user explicitly sees and approves what the integration can do before any credential is issued.</strong> The token is scoped — a <code>webhook:send</code> token can only send webhook messages, not read streams or manage bots. Each token can be revoked independently without affecting other integrations.</p>
 <h3 id="why-django-oauth-toolkit">Why <code>django-oauth-toolkit</code></h3>
 <p>Zulip already uses <code>social-auth-app-django</code> for OAuth as a <em>consumer</em> (letting users log in via GitHub, Google, etc.). Making Zulip an OAuth <em>provider</em> is a different problem — it needs to issue tokens, not consume them. <code>django-oauth-toolkit</code> (DOT) is the standard Django library for this. It provides the authorization, token, and revocation endpoints, uses <code>AUTH_USER_MODEL</code> (already set to <code>zerver.UserProfile</code>), and its models (<code>Application</code>, <code>AccessToken</code>, <code>RefreshToken</code>) integrate cleanly with Zulip's Django 5.2 stack without requiring custom database models.</p>
 <p>Critically, DOT does not require its own middleware. Zulip has a custom auth routing system in <code>rest_dispatch()</code> that selects authentication strategy based on the request path and headers. Adding DOT middleware would conflict with this. Instead, Bearer tokens are handled explicitly in <code>rest_dispatch()</code> alongside the existing Basic auth path — DOT is used only for its models and endpoint views, not its middleware.</p>
-<h3 id="implementation-plan">Implementation Plan</h3>
+<p><strong>Implementation Plan</strong></p>
 <p>The implementation covers four areas:</p>
 <p><strong>1. Infrastructure — Scopes and the ZulipScopesBackend</strong></p>
 <p>DOT uses a pluggable scopes backend to determine what scopes exist and what descriptions to show on the consent screen. The default backend reads a flat dictionary from settings, but Zulip needs scopes that map to its bot permission model. <code>ZulipScopesBackend</code> extends DOT's <code>BaseScopes</code> and provides this mapping:</p>
@@ -197,7 +213,7 @@ rest_path(
 <p>This approach keeps scope policy in the URL routing layer where it's auditable in one place, avoids modifying every view function, and follows the same pattern Zulip already uses for <code>allow_incoming_webhooks</code>.</p>
 <h3 id="connection-to-bot-permissions">Connection to Bot Permissions</h3>
 <p>This is where the two systems merge. Once the permissions layer rejects <code>INCOMING_WEBHOOK_BOT</code> from read endpoints at runtime, the OAuth scope <code>webhook:send</code> doesn't just <em>describe</em> a restriction — it <em>is</em> the restriction, enforced on every API call through the same code path. Building the enforcement layer first ensures the OAuth scopes have real meaning: they gate actual runtime checks, not just creation-time labels.</p>
-<h3 id="relevant-issues_1">Relevant Issues</h3>
+<h3 id="relevant-issues">Relevant Issues</h3>
 <ul>
 <li><a href="https://github.com/zulip/zulip/issues/17042">#17042: feature request: Make Zulip an OAuth Provider.</a></li>
 <li><a href="https://github.com/zulip/zulip/issues/452">#452: Support for OAuth2 token authentication for API?</a></li>
@@ -205,14 +221,7 @@ rest_path(
 <li><a href="https://github.com/zulip/zulip/issues/12803">#12803: Allow revoking OAuth login</a></li>
 </ul>
 <hr />
-<h2 id="uiux-revamp-for-the-integrations-page">UI/UX Revamp for the <code>/integrations</code> Page</h2>
-<h3 id="relevant-issues_2">Relevant Issues</h3>
-<ul>
-<li><a href="https://github.com/zulip/zulip/issues/36564">#36564: Improve "Generate integration URL" modal's "Topic" field.</a></li>
-<li><a href="https://github.com/zulip/zulip/issues/33788">#33788: Add "copy" button to URL in "Generate URL for an integration" modal</a></li>
-<li><a href="https://github.com/zulip/zulip/issues/34269">#34269: New integration request: Quire (link preview)</a></li>
-<li><a href="https://github.com/zulip/zulip/issues/36824">#36824: Add a built-in RSS/Atom integration to replace the existing one</a></li>
-</ul>
+<h3 id="uiux-revamp-for-the-integrations-page">UI/UX Revamp for the <code>/integrations</code> Page</h3>
 <h3 id="the-gap">The Gap</h3>
 <p>Every integration's setup page opens with a plain-text instruction to navigate to Settings → Bots, create a bot manually, copy the API key, and return. The infrastructure for bot creation is fully in place — <code>POST /json/bots</code> handles creation and <code>can_create_incoming_webhooks()</code> already checks the right permissions — none of it is wired to the integrations page. This directly addresses issues <a href="https://github.com/zulip/zulip/issues/9815">#9815</a> and <a href="https://github.com/zulip/zulip/issues/692">#692</a>.</p>
 <p>Issue <a href="https://github.com/zulip/zulip/issues/30139">#30139</a> (auto-populate bot avatar) is also related — the "Add to Zulip" flow handles this naturally since the integration is already known from context, so the avatar assigns automatically without an extra selector.</p>
@@ -234,6 +243,13 @@ rest_path(
 <li>
 <p><strong>Stream picker modal</strong> — A lightweight modal (not the full bot creation form) where the user only picks a stream. Bot type, name, and avatar are derived automatically from the integration context. On confirmation, <code>portico/integrations.ts</code> calls <code>POST /json/bots</code> and on success opens <code>integration_url_modal.ts</code> pre-filled with the new bot's API key and selected stream.</p>
 </li>
+</ul>
+<p><strong>Relevant Issues</strong></p>
+<ul>
+<li><a href="https://github.com/zulip/zulip/issues/36564">#36564: Improve "Generate integration URL" modal's "Topic" field.</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/33788">#33788: Add "copy" button to URL in "Generate URL for an integration" modal</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/34269">#34269: New integration request: Quire (link preview)</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/36824">#36824: Add a built-in RSS/Atom integration to replace the existing one</a></li>
 </ul>
 <hr />
 <h2 id="how-the-three-objectives-connect">How the Three Objectives Connect</h2>
