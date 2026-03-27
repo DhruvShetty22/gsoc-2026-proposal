@@ -24,10 +24,9 @@ A new decorator in `zerver/decorator.py` will reject API requests from `INCOMING
  **Relevant Issues**
 
 - [#16431: Notify bot owners if bot tries to send to a channel it does not have access to](https://github.com/zulip/zulip/issues/16431)
-- [#30077: Make name change permissions more flexible (groups-based permissions)](https://github.com/zulip/zulip/issues/30077)
 - [#22405: Clearly document bot roles](https://github.com/zulip/zulip/issues/22405)
-- [#13927: Make custom field viewing permissions configurable](https://github.com/zulip/zulip/issues/13927)
-
+- [#37252: Hide disabled action buttons on bots panel for non-admins](https://github.com/zulip/zulip/issues/37252)
+- [#31389: Allow changing the bot type of a bot user in the "manage bot" modal.](https://github.com/zulip/zulip/issues/31389)
 ---
 
 ### OAuth Authorization Flow

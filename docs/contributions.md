@@ -2,7 +2,7 @@
 
 I started contributing to Zulip in mid-December'25, with my first pull request being #37183. Looking back at it now, I can clearly see how much my understanding of Zulip's coding standards and development workflow has grown since then.
 
-Rather than rushing to open multiple PRs early on, I focused on understanding the codebase and adapting to the review process. This foundation has helped me write more thoughtful, maintainable contributions over time... I believed I did not have much luck with getting a lot of Merged PR, but i think i have done a decent Job reviewing and taking feedbacks and would try to continue doing same
+Rather than rushing to open multiple PRs early on, I focused on understanding the codebase and adapting to the review process. This foundation has helped me write more thoughtful, maintainable contributions over time... I believe I did not have much luck with getting a lot of Merged PR, but i think i have done a decent Job reviewing and taking feedbacks and would try to continue doing same
 I am especially grateful to Niloth for his efforts to review my PRs and guide me through the process.
 
 | PR | Description | Status |

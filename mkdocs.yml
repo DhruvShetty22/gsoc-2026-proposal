@@ -1,4 +1,4 @@
-site_name: Dhruv Shetty – GSoC 2026 Proposal
+site_name: "Making Zulip Integrations Accessible: Bot Permissions Management and OAuth System"
 
 theme:
   name: readthedocs

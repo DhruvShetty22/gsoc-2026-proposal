@@ -1,6 +1,7 @@
 <div class="cover-page">
   <img src="assets/zulip-logo.svg" alt="Zulip Logo" />
-  <h1 class="cover-title">Google Summer of Code 2026 <span>@Zulip</span></h1>
+  <h1 class="cover-title">Making Zulip Integrations Accessible: Bot Permissions Management and OAuth System</h1>
+  <h2 class="cover-subtitle">Google Summer of Code 2026 <span>@Zulip</span></h2>
   <p class="cover-meta">Project Proposal &nbsp;·&nbsp; By Dhruv Shetty</p>
 </div>
 
