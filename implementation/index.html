@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Project Proposal - Making Zulip Integrations Accessible: Bot Permissions Management and OAuth System</title>
+    <title>Project Proposal - Dhruv Shetty – GSoC 2026 Proposal</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -31,7 +31,7 @@
     <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
     <div class="wy-side-scroll">
       <div class="wy-side-nav-search">
-          <a href=".." class="icon icon-home"> Making Zulip Integrations Accessible: Bot Permissions Management and OAuth System
+          <a href=".." class="icon icon-home"> Dhruv Shetty – GSoC 2026 Proposal
         </a><div role="search">
   <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
       <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
@@ -57,11 +57,7 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#oauth-authorization-flow">OAuth Authorization Flow</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#why-django-oauth-toolkit">Why django-oauth-toolkit</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#per-endpoint-scope-enforcement">Per-Endpoint Scope Enforcement</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#connection-to-bot-permissions">Connection to Bot Permissions</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#relevant-issues">Relevant Issues</a>
     </li>
@@ -89,7 +85,7 @@
     <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
       <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
           <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="..">Making Zulip Integrations Accessible: Bot Permissions Management and OAuth System</a>
+          <a href="..">Dhruv Shetty – GSoC 2026 Proposal</a>
         
       </nav>
       <div class="wy-nav-content">
@@ -109,22 +105,34 @@
 <p>Setting up <strong>integrations</strong> in Zulip can be a daunting process for non-technical users. They are redirected to the administration panel to manually create and configure bots.
 Furthermore, the bot permission management lacks a user-friendly interface and a backend permissions system for managing bot permissions, making it difficult for users to grant integrations access to their Zulip data.</p>
 <h3 id="overview">Overview</h3>
-<p>What i understand based on the current state of the project of making integration easier for end users, many issues need serious discussions and decisions from the mentors and so the issues open are not directly implementable. For this proposal i tried to research and collect issues that are directly relevant to our end goal.
-I would like to summarize the plan to make integrations accessible to non-technical users, into the following three categories:</p>
 <ol>
 <li>
-<p><strong>Backend Bot Permissions System:</strong> This will cover the Design and implementation of backend permissions framework to manage and enforce what actions integration bots can perform.</p>
+<p><strong>Backend Bot Permissions System:</strong> Design and implement a backend permissions framework to enforce what actions integration bots can perform at runtime — not just at creation time.</p>
 </li>
 <li>
-<p><strong>OAuth Authorization Flow:</strong> Implement an OAuth system using the <strong>Django OAuth Toolkit</strong>. This will present a permission <em>authorization screen</em> to users when setting up an integration in order to provide better understanding to users of exactly what access they are granting.</p>
+<p><strong>OAuth Authorization Flow:</strong> Implement an OAuth system using the <strong>Django OAuth Toolkit</strong>, presenting users with a clear consent screen that describes exactly what an integration can access before a token is issued.</p>
 </li>
 <li>
-<p><strong>UI/UX Revamp for the <code>/integrations</code> Page:</strong> We need to add intuitive buttons to directly create bots and add integrations, entirely removing the friction of navigating through the administration panel.</p>
+<p><strong>UI/UX Revamp for the <code>/integrations</code> Page:</strong> Wire up the existing bot-creation infrastructure directly to the integrations page, replacing the multi-step admin-panel redirect with a single "Add to Zulip" flow.</p>
 </li>
 </ol>
 <h3 id="backend-bot-permissions-system">Backend Bot Permissions System</h3>
-<p><strong>Problem:</strong> Zulip's <code>INCOMING_WEBHOOK_BOT</code> type is documented as write-only, but this is never enforced at runtime. Once a bot has an API key, it can call any endpoint regardless of its type — a webhook bot could read messages it was never meant to access.</p>
-<p>A new decorator in <code>zerver/decorator.py</code> will reject API requests from <code>INCOMING_WEBHOOK_BOT</code> on read endpoints, wired into the central dispatcher in <code>zerver/lib/rest.py</code> so the restriction applies consistently. The enforcement will be documented in the OpenAPI spec so integration developers understand the security boundary.</p>
+<p><strong>Problem:</strong> Zulip's <code>INCOMING_WEBHOOK_BOT</code> type is documented as write-only, but this is never enforced at runtime. Once a bot has an API key, it can call any endpoint regardless of its type, a webhook bot could read messages it was without the necessary access.</p>
+<p><strong>Implementation Plan</strong></p>
+<p><strong>1. Centralized access level module — <code>zerver/lib/bot_permissions.py</code></strong></p>
+<p>Rather than scattering <code>is_incoming_webhook</code> checks throughout the codebase, bot access levels are captured in a single module. A <code>BotAccessLevel</code> enum with  <code>SEND_ONLY</code> and <code>READ_WRITE</code> value, making the permission tiers explicit. A <code>check_bot_can_access_endpoint()</code> helper raises a <code>JsonableError</code> if a <code>SEND_ONLY</code> bot attempts to reach an endpoint that hasn't been opted in to webhook access:</p>
+<pre><code class="language-python">class BotAccessLevel(IntEnum):
+    SEND_ONLY = 1    # Incoming webhook bots can only send messages
+    READ_WRITE = 2   # All other users/bots may have full API access
+
+def check_bot_can_access_endpoint(user_profile: UserProfile, endpoint_allows_send_only: bool) -&gt; None:
+    &quot;&quot;&quot;Raises JsonableError if the bot lacks permission for this endpoint.&quot;&quot;&quot;
+    if get_bot_access_level(user_profile) == BotAccessLevel.SEND_ONLY and not endpoint_allows_send_only:
+        raise JsonableError(_(&quot;This API is not available to incoming webhook bots.&quot;))
+</code></pre>
+<p><strong>2. Replacing scattered checks in <code>zerver/decorator.py</code></strong></p>
+<p>There are currently three separate inline <code>is_incoming_webhook</code> guards spread across <code>validate_api_key()</code>, <code>get_oauth2_token_user()</code>, and <code>authenticated_json_view()</code>. All three are replaced with calls to <code>check_bot_can_access_endpoint()</code>, removing the duplication and ensuring every auth path enforces the same rule through a single code path. </p>
+<p>The enforcement is then wired into the central dispatcher in <code>zerver/lib/rest.py</code> and documented in the OpenAPI.</p>
 <p><strong>Relevant Issues</strong></p>
 <ul>
 <li><a href="https://github.com/zulip/zulip/issues/16431">#16431: Notify bot owners if bot tries to send to a channel it does not have access to</a></li>
@@ -134,17 +142,11 @@ I would like to summarize the plan to make integrations accessible to non-techni
 </ul>
 <hr />
 <h3 id="oauth-authorization-flow">OAuth Authorization Flow</h3>
-<p><strong>Problem:</strong> Integrations authenticate with a static API key embedded in the webhook URL (<code>/api/v1/external/github?api_key=abc</code>). This has three gaps: the key grants broad access with no way to limit scope, revoking one integration means regenerating the key for every integration sharing that bot, and users never see or approve what the integration can do — the credential is silently issued.</p>
-<p><strong>Current flow:</strong> User clicks "Add to Zulip" → modal appears → <code>POST /json/integration_bots</code> → webhook URL with <code>?api_key=abc</code> returned. The API key in that URL has no scope limits — if it leaks or the service is compromised, it has the same access as the bot that owns it.</p>
-<p><strong>OAuth flow:</strong> User clicks "Add to Zulip" → redirected to <code>/oauth/authorize/?scope=webhook:send&amp;client_id=...</code> → consent screen shows "This app wants to: Send messages via incoming webhooks" → user clicks Authorize → authorization code issued → token exchange → webhook URL using <code>Authorization: Bearer &lt;token&gt;</code>.</p>
-<p>The key difference: <strong>the user explicitly sees and approves what the integration can do before any credential is issued.</strong> The token is scoped — a <code>webhook:send</code> token can only send webhook messages, not read streams or manage bots. Each token can be revoked independently without affecting other integrations.</p>
-<h3 id="why-django-oauth-toolkit">Why <code>django-oauth-toolkit</code></h3>
-<p>Zulip already uses <code>social-auth-app-django</code> for OAuth as a <em>consumer</em> (letting users log in via GitHub, Google, etc.). Making Zulip an OAuth <em>provider</em> is a different problem — it needs to issue tokens, not consume them. <code>django-oauth-toolkit</code> (DOT) is the standard Django library for this. It provides the authorization, token, and revocation endpoints, uses <code>AUTH_USER_MODEL</code> (already set to <code>zerver.UserProfile</code>), and its models (<code>Application</code>, <code>AccessToken</code>, <code>RefreshToken</code>) integrate cleanly with Zulip's Django 5.2 stack without requiring custom database models.</p>
-<p>Critically, DOT does not require its own middleware. Zulip has a custom auth routing system in <code>rest_dispatch()</code> that selects authentication strategy based on the request path and headers. Adding DOT middleware would conflict with this. Instead, Bearer tokens are handled explicitly in <code>rest_dispatch()</code> alongside the existing Basic auth path — DOT is used only for its models and endpoint views, not its middleware.</p>
+<p><strong>Problem:</strong> Integrations currently use API key embedded in the webhook URL <code>/api/v1/external/github?api_key=abc</code> which makes it difficult to limit its scope. The users never see or approve what the integration can do.</p>
+<p><strong>Proposed OAuth flow:</strong> The user clicks "Add to Zulip" and is redirected to a consent screen at <code>/oauth/authorize/</code> that lists what the integration can do (e.g. "Send messages via incoming webhooks"). Only after the user approves is an authorization code issued, exchanged for a scoped Bearer token, and returned as the credential in the webhook URL. Each token can be revoked independently without affecting other integrations.</p>
 <p><strong>Implementation Plan</strong></p>
-<p>The implementation covers four areas:</p>
-<p><strong>1. Infrastructure — Scopes and the ZulipScopesBackend</strong></p>
-<p>DOT uses a pluggable scopes backend to determine what scopes exist and what descriptions to show on the consent screen. The default backend reads a flat dictionary from settings, but Zulip needs scopes that map to its bot permission model. <code>ZulipScopesBackend</code> extends DOT's <code>BaseScopes</code> and provides this mapping:</p>
+<p><strong>1. Scopes and the ZulipScopesBackend</strong></p>
+<p>Django-oauth-toolkit lets you define OAuth scopes as a simple key-value list in settings.py, but Zulip needs scopes tied to its bot permission model. <code>ZulipScopesBackend</code> will extend <code>BaseScopes</code> to provide this mapping:</p>
 <pre><code class="language-python">OAUTH2_PROVIDER = {
     &quot;SCOPES&quot;: {
         &quot;webhook:send&quot;: &quot;Send messages via incoming webhooks&quot;,
@@ -155,37 +157,10 @@ I would like to summarize the plan to make integrations accessible to non-techni
     &quot;SCOPES_BACKEND_CLASS&quot;: &quot;zerver.lib.oauth2_scopes.ZulipScopesBackend&quot;,
 }
 </code></pre>
-<p>The backend is called at two points: during authorization (to validate requested scopes and render descriptions on the consent screen) and during token creation (to assign the granted scopes to the <code>AccessToken</code>). The scope names are designed to map directly to bot type restrictions from the permissions layer:</p>
-<table>
-<thead>
-<tr>
-<th>Scope</th>
-<th>Bot Type</th>
-<th>Runtime Meaning</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td><code>webhook:send</code></td>
-<td><code>INCOMING_WEBHOOK_BOT</code></td>
-<td>Can only post to webhook endpoints and send messages</td>
-</tr>
-<tr>
-<td><code>bot:read</code></td>
-<td><code>DEFAULT_BOT</code> (read)</td>
-<td>Can read messages, streams, user data</td>
-</tr>
-<tr>
-<td><code>bot:write</code></td>
-<td><code>DEFAULT_BOT</code> (write)</td>
-<td>Can send messages, manage streams, modify data</td>
-</tr>
-</tbody>
-</table>
-<p>This connection is what makes the permissions layer and OAuth scopes two sides of the same coin — the permissions layer enforces at runtime, and the scopes communicate those restrictions to users on the consent screen.</p>
+<p>The backend is called at two points: once during authorization and then during token creation (to assign the granted scopes to the <code>AccessToken</code>). The scope names are designed to map directly to bot type restrictions from the permissions layer:</p>
 <p><strong>2. Bearer Token Authentication — Extending <code>rest_dispatch()</code></strong></p>
-<p>Every API request flows through <code>rest_dispatch()</code> in <code>zerver/lib/rest.py</code>, which selects the authentication method based on the request path and headers. Today, <code>/api</code> paths with an <code>Authorization</code> header always go through <code>authenticated_rest_api_view()</code>, which calls <code>get_basic_credentials()</code> and rejects anything that isn't HTTP Basic auth.</p>
-<p>The change adds a single branch before this existing path:</p>
+<p>The API request in Zulip pass through <code>rest_dispatch()</code> in <code>zerver/lib/rest.py</code>, which decides how to authenticate it. Currently If a request arrives with a Bearer token instead, it gets rejected as making the entire OAuth flow useless since the tokens it issues would never be accepted inorder to fix this.
+If the <code>Authorization</code> header contains a Bearer token, route it through a new <code>authenticated_oauth2_api_view()</code> handler, otherwise fall through to the existing Basic auth path.</p>
 <pre><code class="language-python">elif request.path.startswith(&quot;/api&quot;) and &quot;Authorization&quot; in request.headers:
     auth_type = request.headers[&quot;Authorization&quot;].split(None, 1)[0].lower()
     if auth_type == &quot;bearer&quot;:
@@ -193,15 +168,10 @@ I would like to summarize the plan to make integrations accessible to non-techni
     else:
         target_function = authenticated_rest_api_view(...)(target_function)
 </code></pre>
-<p>The <code>else</code> branch is the existing Basic auth path — completely untouched. This is a strictly additive change. The new <code>authenticated_oauth2_api_view()</code> decorator follows the same structure as <code>authenticated_rest_api_view()</code>: it extracts credentials (Bearer token instead of Basic auth), validates the user (via DOT's <code>AccessToken</code> model instead of <code>access_user_by_api_key()</code>), checks account status and subdomain (reusing <code>validate_account_and_subdomain()</code>), rate-limits, and calls the view function. The granted scopes are attached to the request as <code>request.oauth2_scopes</code> for downstream enforcement.</p>
 <p><strong>3. Authorization Consent Screen</strong></p>
-<p>The consent screen extends Zulip's <code>portico.html</code> base template so it inherits the standard page chrome. It shows the requesting application's name, a list of scope descriptions (rendered from the scopes backend), and Authorize/Deny buttons. The form uses PKCE (Proof Key for Code Exchange) with S256 challenges — required by DOT 3.x to prevent authorization code interception attacks.</p>
-<p>A design consideration: Zulip uses Jinja2 for server-side templates, not Django's template engine. DOT's default templates use Django template tags (<code>{% url %}</code>), so the custom consent template uses hardcoded paths (<code>/oauth/authorize/</code>) and Jinja2 syntax (<code>{{ form.as_p() }}</code>) instead.</p>
-<p><strong>4. Connect to <code>/integrations</code></strong></p>
-<p>The "Add to Zulip" button currently calls <code>POST /json/integration_bots</code> directly and returns a webhook URL with an embedded API key. In the OAuth-enabled version, integrations that have registered OAuth applications show an alternative flow: the button redirects to <code>/oauth/authorize/</code> with the integration's <code>client_id</code> and requested scopes. After the user approves, the callback page completes the token exchange and displays the webhook URL configured to use <code>Authorization: Bearer &lt;token&gt;</code> instead of <code>?api_key=</code>.</p>
-<p>Both flows coexist — self-hosted integrations can continue using direct API keys, while third-party services use the OAuth consent flow.</p>
+<p>The consent screen extends Zulip's <code>portico.html</code> base template so it inherits the standard page chrome. It shows the requesting application's name, a list of scope descriptions (rendered from the scopes backend), and Authorize/Deny buttons. </p>
 <h3 id="per-endpoint-scope-enforcement">Per-Endpoint Scope Enforcement</h3>
-<p>The prototype grants scopes and attaches them to tokens, but does not yet enforce them per-endpoint. The full implementation extends the <code>view_flags</code> system already used by <code>rest_dispatch()</code> (e.g., <code>allow_incoming_webhooks</code>) to carry scope requirements:</p>
+<p>The prototype grants scopes and attaches them to tokens, to enforce them per-endpoint. The implementation extends the <code>view_flags</code> system already used by <code>rest_dispatch()</code> (e.g., <code>allow_incoming_webhooks</code>) to carry scope requirements:</p>
 <pre><code class="language-python"># In urls.py — scope requirements declared alongside routes
 rest_path(
     &quot;messages&quot;,
@@ -209,10 +179,7 @@ rest_path(
     GET=(get_messages_backend, {&quot;oauth_scopes:bot:read&quot;}),
 ),
 </code></pre>
-<p>At dispatch time, <code>rest_dispatch()</code> extracts flags prefixed with <code>oauth_scopes:</code> and passes them to <code>authenticated_oauth2_api_view()</code>, which checks them against <code>request.oauth2_scopes</code>. A token with only <code>webhook:send</code> gets a 403 on <code>GET /api/v1/messages</code>; a token with <code>bot:read</code> succeeds. Basic auth requests bypass scope checks entirely — this is an OAuth-only restriction, so existing API key clients are unaffected.</p>
 <p>This approach keeps scope policy in the URL routing layer where it's auditable in one place, avoids modifying every view function, and follows the same pattern Zulip already uses for <code>allow_incoming_webhooks</code>.</p>
-<h3 id="connection-to-bot-permissions">Connection to Bot Permissions</h3>
-<p>This is where the two systems merge. Once the permissions layer rejects <code>INCOMING_WEBHOOK_BOT</code> from read endpoints at runtime, the OAuth scope <code>webhook:send</code> doesn't just <em>describe</em> a restriction — it <em>is</em> the restriction, enforced on every API call through the same code path. Building the enforcement layer first ensures the OAuth scopes have real meaning: they gate actual runtime checks, not just creation-time labels.</p>
 <h3 id="relevant-issues">Relevant Issues</h3>
 <ul>
 <li><a href="https://github.com/zulip/zulip/issues/17042">#17042: feature request: Make Zulip an OAuth Provider.</a></li>
@@ -223,8 +190,8 @@ rest_path(
 <hr />
 <h3 id="uiux-revamp-for-the-integrations-page">UI/UX Revamp for the <code>/integrations</code> Page</h3>
 <h3 id="the-gap">The Gap</h3>
-<p>Every integration's setup page opens with a plain-text instruction to navigate to Settings → Bots, create a bot manually, copy the API key, and return. The infrastructure for bot creation is fully in place — <code>POST /json/bots</code> handles creation and <code>can_create_incoming_webhooks()</code> already checks the right permissions — none of it is wired to the integrations page. This directly addresses issues <a href="https://github.com/zulip/zulip/issues/9815">#9815</a> and <a href="https://github.com/zulip/zulip/issues/692">#692</a>.</p>
-<p>Issue <a href="https://github.com/zulip/zulip/issues/30139">#30139</a> (auto-populate bot avatar) is also related — the "Add to Zulip" flow handles this naturally since the integration is already known from context, so the avatar assigns automatically without an extra selector.</p>
+<p>Every integration's setup page opens with instructions to navigate to Settings → Bots, create a bot manually, copy the API key, and return. The infrastructure for bot creation <code>POST /json/bots</code> handles creation and <code>can_create_incoming_webhooks()</code> already checks the right permissions — none of it is wired to the integrations page. This directly addresses issues <a href="https://github.com/zulip/zulip/issues/9815">#9815</a> and <a href="https://github.com/zulip/zulip/issues/692">#692</a>.</p>
+<p>Issue <a href="https://github.com/zulip/zulip/issues/30139">#30139</a> (auto-populate bot avatar) is also related, the "Add to Zulip" flow handles this naturally since the integration is already known from context, so the avatar assigns automatically without an extra selector.</p>
 <p><img alt="Add to Zulip modal mockup" src="../assets/add_to_zulip.png" /></p>
 <h3 id="plan">Plan</h3>
 <p>The full flow from button click to a ready-to-use webhook URL:</p>
@@ -234,36 +201,21 @@ rest_path(
             → integration_url_modal.ts  [pre-filled with new bot's API key + stream]
 </code></pre>
 <ul>
-<li>
-<p><strong>Backend</strong> — <code>zerver/views/documentation.py</code> passes a <code>user_can_create_webhook</code> flag to the integration doc template, derived from existing group-based permission checks. The button is only rendered server-side for users who can act on it; unauthenticated visitors see a sign-in prompt instead.</p>
-</li>
-<li>
-<p><strong>Button</strong> — Conditionally rendered in <code>templates/zerver/integrations/doc.html</code> with <code>data-</code> attributes carrying the integration name and logo, so the frontend needs no extra API call to create the bot.</p>
-</li>
-<li>
-<p><strong>Stream picker modal</strong> — A lightweight modal (not the full bot creation form) where the user only picks a stream. Bot type, name, and avatar are derived automatically from the integration context. On confirmation, <code>portico/integrations.ts</code> calls <code>POST /json/bots</code> and on success opens <code>integration_url_modal.ts</code> pre-filled with the new bot's API key and selected stream.</p>
-</li>
+<li><code>zerver/views/documentation.py</code> passes a <code>user_can_create_webhook</code> flag to the integration doc template, derived from existing group-based permission checks.</li>
+</ul>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>The button is only rendered server-side for users who can act on it; unauthenticated visitors see a sign-in prompt instead.</p>
+</div>
+<ul>
+<li><strong>Button</strong> — Rendered in <code>templates/zerver/integrations/doc.html</code> with <code>data-</code> attributes carrying the integration name and logo, so the frontend needs no extra API call to create the bot.</li>
 </ul>
 <p><strong>Relevant Issues</strong></p>
 <ul>
+<li><a href="https://github.com/zulip/zulip/issues/30139">#30139: Auto populate bot avatar for webhook integrations bot</a></li>
 <li><a href="https://github.com/zulip/zulip/issues/36564">#36564: Improve "Generate integration URL" modal's "Topic" field.</a></li>
 <li><a href="https://github.com/zulip/zulip/issues/33788">#33788: Add "copy" button to URL in "Generate URL for an integration" modal</a></li>
 <li><a href="https://github.com/zulip/zulip/issues/34269">#34269: New integration request: Quire (link preview)</a></li>
-<li><a href="https://github.com/zulip/zulip/issues/36824">#36824: Add a built-in RSS/Atom integration to replace the existing one</a></li>
-</ul>
-<hr />
-<h2 id="how-the-three-objectives-connect">How the Three Objectives Connect</h2>
-<p>The three objectives are designed as a layered system, each building on the one before:</p>
-<ul>
-<li>
-<p><strong>Permissions → OAuth</strong> — The decorator-based enforcement in <code>zerver/decorator.py</code> gives real meaning to OAuth scopes. Each scope (<code>webhook:send</code>, <code>bot:read</code>, <code>bot:write</code>) maps directly to a bot type restriction that is already enforced at runtime — scopes gate actual API checks, not just labels.</p>
-</li>
-<li>
-<p><strong>OAuth → UI</strong> — The "Add to Zulip" button is the user-facing entry point to the OAuth flow. In the base implementation it calls <code>POST /json/bots</code> directly; in the OAuth-enabled version, clicking the button routes through the consent screen so the user sees and approves exactly what the integration can do before a bot is created.</p>
-</li>
-<li>
-<p><strong>Permissions → UI</strong> — The <code>user_can_create_webhook</code> flag passed to the integration doc template is derived from the same <code>can_create_bots_group</code> / <code>can_create_write_only_bots_group</code> permission groups the backend enforcement layer manages, keeping permission logic consistent across both surfaces.</p>
-</li>
 </ul>
 <hr />
 <!-- 
