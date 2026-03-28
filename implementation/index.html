@@ -57,13 +57,7 @@
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#oauth-authorization-flow">OAuth Authorization Flow</a>
     </li>
-    <li class="toctree-l2"><a class="reference internal" href="#per-endpoint-scope-enforcement">Per-Endpoint Scope Enforcement</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#relevant-issues">Relevant Issues</a>
-    </li>
     <li class="toctree-l2"><a class="reference internal" href="#uiux-revamp-for-the-integrations-page">UI/UX Revamp for the /integrations Page</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#the-gap">The Gap</a>
     </li>
     <li class="toctree-l2"><a class="reference internal" href="#plan">Plan</a>
     </li>
@@ -170,7 +164,7 @@ If the <code>Authorization</code> header contains a Bearer token, route it throu
 </code></pre>
 <p><strong>3. Authorization Consent Screen</strong></p>
 <p>The consent screen extends Zulip's <code>portico.html</code> base template so it inherits the standard page chrome. It shows the requesting application's name, a list of scope descriptions (rendered from the scopes backend), and Authorize/Deny buttons. </p>
-<h3 id="per-endpoint-scope-enforcement">Per-Endpoint Scope Enforcement</h3>
+<p><strong>Per-Endpoint Scope Enforcement</strong></p>
 <p>The prototype grants scopes and attaches them to tokens, to enforce them per-endpoint. The implementation extends the <code>view_flags</code> system already used by <code>rest_dispatch()</code> (e.g., <code>allow_incoming_webhooks</code>) to carry scope requirements:</p>
 <pre><code class="language-python"># In urls.py — scope requirements declared alongside routes
 rest_path(
@@ -180,7 +174,7 @@ rest_path(
 ),
 </code></pre>
 <p>This approach keeps scope policy in the URL routing layer where it's auditable in one place, avoids modifying every view function, and follows the same pattern Zulip already uses for <code>allow_incoming_webhooks</code>.</p>
-<h3 id="relevant-issues">Relevant Issues</h3>
+<p><strong>Relevant Issues</strong></p>
 <ul>
 <li><a href="https://github.com/zulip/zulip/issues/17042">#17042: feature request: Make Zulip an OAuth Provider.</a></li>
 <li><a href="https://github.com/zulip/zulip/issues/452">#452: Support for OAuth2 token authentication for API?</a></li>
@@ -189,8 +183,7 @@ rest_path(
 </ul>
 <hr />
 <h3 id="uiux-revamp-for-the-integrations-page">UI/UX Revamp for the <code>/integrations</code> Page</h3>
-<h3 id="the-gap">The Gap</h3>
-<p>Every integration's setup page opens with instructions to navigate to Settings → Bots, create a bot manually, copy the API key, and return. The infrastructure for bot creation <code>POST /json/bots</code> handles creation and <code>can_create_incoming_webhooks()</code> already checks the right permissions — none of it is wired to the integrations page. This directly addresses issues <a href="https://github.com/zulip/zulip/issues/9815">#9815</a> and <a href="https://github.com/zulip/zulip/issues/692">#692</a>.</p>
+<p><strong>Problem:</strong> Every integration's setup page opens with instructions to navigate to Settings → Bots, create a bot manually, copy the API key, and return. The infrastructure for bot creation <code>POST /json/bots</code> handles creation and <code>can_create_incoming_webhooks()</code> already checks the right permissions — none of it is wired to the integrations page. This directly addresses issues <a href="https://github.com/zulip/zulip/issues/9815">#9815</a> and <a href="https://github.com/zulip/zulip/issues/692">#692</a>.</p>
 <p>Issue <a href="https://github.com/zulip/zulip/issues/30139">#30139</a> (auto-populate bot avatar) is also related, the "Add to Zulip" flow handles this naturally since the integration is already known from context, so the avatar assigns automatically without an extra selector.</p>
 <p><img alt="Add to Zulip modal mockup" src="../assets/add_to_zulip.png" /></p>
 <h3 id="plan">Plan</h3>
@@ -205,7 +198,7 @@ rest_path(
 </ul>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
-<p>The button is only rendered server-side for users who can act on it; unauthenticated visitors see a sign-in prompt instead.</p>
+<p>The button will only be rendered server-side for users who can act on it. Unauthenticated visitors will see a sign-in prompt instead.</p>
 </div>
 <ul>
 <li><strong>Button</strong> — Rendered in <code>templates/zerver/integrations/doc.html</code> with <code>data-</code> attributes carrying the integration name and logo, so the frontend needs no extra API call to create the bot.</li>
