@@ -1,52 +1,56 @@
 ## Timeline
 
-
-
-### My Plan
-
-| Phase | Dates | Focus |
-|-------|-------|-------|
-| Pre-Community Bonding | April 2 – April 27 | I am planning to work on my existing PRs |
-| Community Bonding | April 28 – May 25 | Setup, open PRs, mentor discussions |
-| Coding Phase 1 | May 26 – July 10 | Customizable Webhook Fields |
-| Midterm Evaluation | July 13 – July 17 | Review & buffer |
-| Coding Phase 2 | July 18 – Aug 16 | Stripe callbacks, Zapier, extensions |
-| Final Week | Aug 17 – Aug 24 | Wrap up, final report |
+I plan to submit small PRs throught for the ease of Review and work on multiple PRs parallely to not get stuck on the review process.
 
 ---
 
-### Pre-Community Bonding — April 2nd to April 27th
-- This period i would like to dedicate to getting my existing PR to a good state (probably merged), so that they dont end up being stale. 
-(#38599 Intercom, #38279 Jira comments, #38481 Azure Alert, # import slack) 
+### Pre-Community Bonding : April 1st to April 30th
+- Dedicate this period to getting existing PRs to a mergeable state, so they don't go stale during GSoC.
+  - [#38599](https://github.com/zulip/zulip/pull/38599) :Intercom company events
+  - [#38279](https://github.com/zulip/zulip/pull/38279) :Jira comment-event notifications
+  - [#38481](https://github.com/zulip/zulip/pull/38481) :Azure Alert integration
+  - [#38650](https://github.com/zulip/zulip/pull/38650) :Import Slack Canvas posts
 
+---
 
-### Community Bonding — April 28th to May 25th
+### Community Bonding : May 1st to May 25th
+- I would like this period to be focused on research and preparatory work for my GSoC project, going through the documentation, studying existing work in completion candidates, and even closed WIPs, as there are many I can learn from.
+- Most importantly, I will discuss the plan for the coming weeks with my mentors, align on issue priorities, and gather feedback on my open PRs.
 
--I would like this period to be more of research and preperatory work for my GSOC project. Going through the documentation existing work in some completion candidate and even closed WIPs as there are many which i can use to learn about(#452,)
-- And most importantly develop a better bond with my mentors  (Niloth and Lauryn).
+### Coding Phase 1 : May 26th to July 10th
 
-### Coding Phase 1 — May 26th to July 10th
+- **Backend Permissions & OAuth Infrastructure** : Start by implementing core decorator functions to restrict `INCOMING_WEBHOOK_BOT` access on read endpoints. The primary issues here are [#16431](https://github.com/zulip/zulip/issues/16431) and [#22405](https://github.com/zulip/zulip/issues/22405).
+- **OAuth Implementation** : Extend the API dispatcher to accept Bearer tokens alongside API keys and enforce scope restrictions. No dedicated open issue exists yet, will discuss the approach with mentors early in this phase.
+- **Integrations Page Revamp** : Towards the end of this phase, begin work on the `/integrations` page UX, implementing the "Add to Zulip" button and stream picker modal ([#9815](https://github.com/zulip/zulip/issues/9815)).
 
-- **Week 1:** **Backend Permissions System** — Implement core decorator in `zerver/decorator.py` to enforce `INCOMING_WEBHOOK_BOT` restrictions on read endpoints. Add unit tests for compliance.
-- **Week 2:** **OAuth Infrastructure Setup** — Integrate `django-oauth-toolkit`, configure scopes (`webhook:send`, `bot:read`, `bot:write`), and register OAuth endpoints locally.
-- **Week 3:** **OAuth Token Authentication** — Extend API dispatcher in `zerver/lib/rest.py` to accept Bearer tokens alongside API keys, and enforce backend scope restrictions.
-- **Week 4:** **OAuth Authorization Screen** — Build and style the consent screen matching Zulip's UI for users to approve webhook access.
-- **Week 5:** **UI/UX Revamp (Backend + Button)** — Update `zerver/views/documentation.py` to pass the `user_can_create_webhook` flag. Conditionally render the "Add to Zulip" button on the integrations page.
-- **Week 6:** **UI/UX Revamp (Frontend Modal)** — Build the stream picker modal (`add_to_zulip_modal.hbs`), wire it up to `POST /json/bots`, and route through the new OAuth flow. Fix emerging bugs and write initial docs.
+### Midterm Evaluation : July 7th to July 10th
+- **Deliverables:** Working backend permissions system, Bearer token authentication.
+- Submit midterm evaluation.
 
-### Midterm Evaluation — July 13th to July 17th
-- Buffer for any carry-over from Phase 1.
-- Deliver working Backend Permissions, OAuth flow, and the `/integrations` page revamp.
-- Sync with mentors on priorities for Phase 2 (the webhook field customizations).
+---
 
-### Coding Phase 2 — July 18th to August 16th
-- **Week 7:** **Custom Webhook Fields (Backend Core)** — Define `ISSUE_FIELDS_CONFIG` for Jira. Add `created_issue_fields` parameter and refactor `handle_created_issue_event`.
-- **Week 8:** **Custom Fields (Advanced Resolution)** — Add custom dot-path field resolution logic (`project.name`, `customfield_*.name`). Fallback logic handling.
-- **Week 9:** **Custom Fields (Frontend State)** — Hook up `WebhookUrlOption` with the `options` field, configure backend serialization and Zod schema updates.
-- **Week 10:** **Pill-based UI** — Implement pill-based UI with typeahead (`integration_field_pill.ts`), and URL builder integration inside the URL generation modal.
-- **Week 11:** **Extensibility & Docs** — Extend the pill UI framework to other integrations (e.g. GitHub, PagerDuty), polishing the user experience, addressing PR review feedback.
+### Coding Phase 2 : July 18th to August 16th
+- With the internship winding down, I will have significantly more time in this phase. I plan to work on issues that still need feedback or experimentation to move forward.
+- Focus areas include the OAuth consent screen and `/integration` page. (if not completed in Phase 1), along with:
+  - [#30139: Auto populate bot avatar for webhook integrations bot](https://github.com/zulip/zulip/issues/30139)
+  - [#36564: Improve "Generate integration URL" modal's "Topic" field](https://github.com/zulip/zulip/issues/36564)
+  - [#33788: Add "copy" button to URL in "Generate URL for an integration" modal](https://github.com/zulip/zulip/issues/33788)
+These PRs have significant work already done by other contributors which is why i think it would be realistic to complete them in this phase.
 
-### Final Week — August 17 to August 24
-- Address all pending review comments across the entire codebase.
-- Final documentation pass (API boundaries, custom fields notation).
+### Final Week : August 17 to August 24
+- Address all outstanding review comments across PRs.
+- Final documentation pass covering API boundaries, OAuth scope, and the "Add to Zulip" flow.
 - Submit end-of-programme report.
+
+---
+
+### Summary
+
+| Phase | Dates | Focus |
+|-------|-------|:-----:|
+| Pre-Community Bonding | <nobr>April 1 – April 30</nobr> | Work on existing open PRs |
+| Community Bonding | <nobr>May 1 – May 25</nobr> | Research, product decision alignment, mentor discussions |
+| Coding Phase 1 | <nobr>May 26 – July 10</nobr> | Backend permissions for Bot and OAuth infrastructure  |
+| Midterm Evaluation | <nobr>July 7 – July 10</nobr> | Review, buffer, sync with mentors |
+| Coding Phase 2 | <nobr>July 18 – Aug 16</nobr> | integrations page revamp,OAuth scope enforcement, consent screen, UX polish |
+| Final Week | <nobr>Aug 17 – Aug 24</nobr> | PR reviews, docs, final report |

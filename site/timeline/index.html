@@ -1,230 +1,211 @@
 <!DOCTYPE html>
-<html class="writer-html5" lang="en" >
+
+<html class="writer-html5" lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-      <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Timeline - Making Zulip Integrations Accessible: Bot Permissions Management and OAuth System</title>
-    <link rel="stylesheet" href="../css/theme.css" />
-    <link rel="stylesheet" href="../css/theme_extra.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
-        <link href="../stylesheets/extra.css" rel="stylesheet" />
-    
-      <script>
+<meta charset="utf-8"/>
+<meta content="IE=edge" http-equiv="X-UA-Compatible"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="../img/favicon.ico" rel="shortcut icon"/>
+<title>Timeline - Dhruv Shetty – GSoC 2026 Proposal</title>
+<link href="../css/theme.css" rel="stylesheet"/>
+<link href="../css/theme_extra.css" rel="stylesheet"/>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" rel="stylesheet"/>
+<link href="../stylesheets/extra.css" rel="stylesheet"/>
+<script>
         // Current page data
         var mkdocs_page_name = "Timeline";
         var mkdocs_page_input_path = "timeline.md";
         var mkdocs_page_url = null;
       </script>
-    
-    <!--[if lt IE 9]>
+<!--[if lt IE 9]>
       <script src="../js/html5shiv.min.js"></script>
     <![endif]-->
-      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
-      <script>hljs.highlightAll();</script> 
-</head>
-
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+<script>hljs.highlightAll();</script>
+<link href="../proposal.pdf" rel="alternate" title="PDF" type="application/pdf"/></head>
 <body class="wy-body-for-nav" role="document">
-
-  <div class="wy-grid-for-nav">
-    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
-    <div class="wy-side-scroll">
-      <div class="wy-side-nav-search">
-          <a href=".." class="icon icon-home"> Making Zulip Integrations Accessible: Bot Permissions Management and OAuth System
-        </a><div role="search">
-  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
-      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
-  </form>
+<div class="wy-grid-for-nav">
+<nav class="wy-nav-side stickynav" data-toggle="wy-nav-shift">
+<div class="wy-side-scroll">
+<div class="wy-side-nav-search">
+<a class="icon icon-home" href=".."> Dhruv Shetty – GSoC 2026 Proposal
+        </a>
 </div>
-      </div>
-
-      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="..">Introduction</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../contributions/">My Contributions</a>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../implementation/">Project Proposal</a>
-                </li>
-              </ul>
-              <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Timeline</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#my-plan">My Plan</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#pre-community-bonding-april-2nd-to-april-27th">Pre-Community Bonding — April 2nd to April 27th</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#community-bonding-april-28th-to-may-25th">Community Bonding — April 28th to May 25th</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#coding-phase-1-may-26th-to-july-10th">Coding Phase 1 — May 26th to July 10th</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#midterm-evaluation-july-13th-to-july-17th">Midterm Evaluation — July 13th to July 17th</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#coding-phase-2-july-18th-to-august-16th">Coding Phase 2 — July 18th to August 16th</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#final-week-august-17-to-august-24">Final Week — August 17 to August 24</a>
-    </li>
-    </ul>
-                </li>
-              </ul>
-              <ul>
-                <li class="toctree-l1"><a class="reference internal" href="../availability/">Availability</a>
-                </li>
-              </ul>
-      </div>
-    </div>
-    </nav>
-
-    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
-      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
-          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
-          <a href="..">Making Zulip Integrations Accessible: Bot Permissions Management and OAuth System</a>
-        
-      </nav>
-      <div class="wy-nav-content">
-        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
-  <ul class="wy-breadcrumbs">
-    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Timeline</li>
-    <li class="wy-breadcrumbs-aside">
-    </li>
-  </ul>
-  <hr/>
+<div aria-label="Navigation menu" class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="..">Introduction</a>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../contributions/">My Contributions</a>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../implementation/">Project Proposal</a>
+</li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal current" href="#">Timeline</a>
+<ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="#pre-community-bonding-april-1st-to-april-30th">Pre-Community Bonding : April 1st to April 30th</a>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#community-bonding-may-1st-to-may-25th">Community Bonding : May 1st to May 25th</a>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#coding-phase-1-may-26th-to-july-10th">Coding Phase 1 : May 26th to July 10th</a>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#midterm-evaluation-july-7th-to-july-10th">Midterm Evaluation : July 7th to July 10th</a>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#coding-phase-2-july-18th-to-august-16th">Coding Phase 2 : July 18th to August 16th</a>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#final-week-august-17-to-august-24">Final Week : August 17 to August 24</a>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="#summary">Summary</a>
+</li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../availability/">Availability</a>
+</li>
+</ul>
 </div>
-          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
-            <div class="section" itemprop="articleBody">
-              
-                <h2 id="timeline">Timeline</h2>
-<h3 id="my-plan">My Plan</h3>
+</div>
+</nav>
+<section class="wy-nav-content-wrap" data-toggle="wy-nav-shift">
+<nav aria-label="Mobile navigation menu" class="wy-nav-top" role="navigation">
+<i class="fa fa-bars" data-toggle="wy-nav-top"></i>
+<a href="..">Dhruv Shetty – GSoC 2026 Proposal</a>
+</nav>
+<div class="wy-nav-content">
+<div class="rst-content"><div aria-label="breadcrumbs navigation" role="navigation">
+<ul class="wy-breadcrumbs">
+<li><a aria-label="Docs" class="icon icon-home" href=".."></a></li>
+<li class="breadcrumb-item active">Timeline</li>
+<li class="wy-breadcrumbs-aside">
+</li>
+</ul>
+<hr/>
+</div>
+<div class="document" itemscope="itemscope" itemtype="http://schema.org/Article" role="main">
+<div class="section" itemprop="articleBody">
+<h2 id="timeline">Timeline</h2>
+<p>I plan to submit small PRs throught for the ease of Review and work on multiple PRs parallely to not get stuck on the review process.</p>
+<hr/>
+<h3 id="pre-community-bonding-april-1st-to-april-30th">Pre-Community Bonding : April 1st to April 30th</h3>
+<ul>
+<li>Dedicate this period to getting existing PRs to a mergeable state, so they don't go stale during GSoC.</li>
+<li><a href="https://github.com/zulip/zulip/pull/38599">#38599</a> :Intercom company events</li>
+<li><a href="https://github.com/zulip/zulip/pull/38279">#38279</a> :Jira comment-event notifications</li>
+<li><a href="https://github.com/zulip/zulip/pull/38481">#38481</a> :Azure Alert integration</li>
+<li><a href="https://github.com/zulip/zulip/pull/38650">#38650</a> :Import Slack Canvas posts</li>
+</ul>
+<hr/>
+<h3 id="community-bonding-may-1st-to-may-25th">Community Bonding : May 1st to May 25th</h3>
+<ul>
+<li>I would like this period to be focused on research and preparatory work for my GSoC project, going through the documentation, studying existing work in completion candidates, and even closed WIPs, as there are many I can learn from.</li>
+<li>Most importantly, I will discuss the plan for the coming weeks with my mentors, align on issue priorities, and gather feedback on my open PRs.</li>
+</ul>
+<h3 id="coding-phase-1-may-26th-to-july-10th">Coding Phase 1 : May 26th to July 10th</h3>
+<ul>
+<li><strong>Backend Permissions &amp; OAuth Infrastructure</strong> : Start by implementing core decorator functions to restrict <code>INCOMING_WEBHOOK_BOT</code> access on read endpoints. The primary issues here are <a href="https://github.com/zulip/zulip/issues/16431">#16431</a> and <a href="https://github.com/zulip/zulip/issues/22405">#22405</a>.</li>
+<li><strong>OAuth Implementation</strong> : Extend the API dispatcher to accept Bearer tokens alongside API keys and enforce scope restrictions. No dedicated open issue exists yet, will discuss the approach with mentors early in this phase.</li>
+<li><strong>Integrations Page Revamp</strong> : Towards the end of this phase, begin work on the <code>/integrations</code> page UX, implementing the "Add to Zulip" button and stream picker modal (<a href="https://github.com/zulip/zulip/issues/9815">#9815</a>).</li>
+</ul>
+<h3 id="midterm-evaluation-july-7th-to-july-10th">Midterm Evaluation : July 7th to July 10th</h3>
+<ul>
+<li><strong>Deliverables:</strong> Working backend permissions system, Bearer token authentication.</li>
+<li>Submit midterm evaluation.</li>
+</ul>
+<hr/>
+<h3 id="coding-phase-2-july-18th-to-august-16th">Coding Phase 2 : July 18th to August 16th</h3>
+<ul>
+<li>With the internship winding down, I will have significantly more time in this phase. I plan to work on issues that still need feedback or experimentation to move forward.</li>
+<li>Focus areas include the OAuth consent screen and <code>/integration</code> page. (if not completed in Phase 1), along with:</li>
+<li><a href="https://github.com/zulip/zulip/issues/30139">#30139: Auto populate bot avatar for webhook integrations bot</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/36564">#36564: Improve "Generate integration URL" modal's "Topic" field</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/33788">#33788: Add "copy" button to URL in "Generate URL for an integration" modal</a>
+These PRs have significant work already done by other contributors which is why i think it would be realistic to complete them in this phase.</li>
+</ul>
+<h3 id="final-week-august-17-to-august-24">Final Week : August 17 to August 24</h3>
+<ul>
+<li>Address all outstanding review comments across PRs.</li>
+<li>Final documentation pass covering API boundaries, OAuth scope, and the "Add to Zulip" flow.</li>
+<li>Submit end-of-programme report.</li>
+</ul>
+<hr/>
+<h3 id="summary">Summary</h3>
 <table>
 <thead>
 <tr>
 <th>Phase</th>
 <th>Dates</th>
-<th>Focus</th>
+<th style="text-align: center;">Focus</th>
 </tr>
 </thead>
 <tbody>
 <tr>
 <td>Pre-Community Bonding</td>
-<td>April 2 – April 27</td>
-<td>I am planning to work on my existing PRs</td>
+<td><nobr>April 1 – April 30</nobr></td>
+<td style="text-align: center;">Work on existing open PRs</td>
 </tr>
 <tr>
 <td>Community Bonding</td>
-<td>April 28 – May 25</td>
-<td>Setup, open PRs, mentor discussions</td>
+<td><nobr>May 1 – May 25</nobr></td>
+<td style="text-align: center;">Research, product decision alignment, mentor discussions</td>
 </tr>
 <tr>
 <td>Coding Phase 1</td>
-<td>May 26 – July 10</td>
-<td>Customizable Webhook Fields</td>
+<td><nobr>May 26 – July 10</nobr></td>
+<td style="text-align: center;">Backend permissions for Bot and OAuth infrastructure</td>
 </tr>
 <tr>
 <td>Midterm Evaluation</td>
-<td>July 13 – July 17</td>
-<td>Review &amp; buffer</td>
+<td><nobr>July 7 – July 10</nobr></td>
+<td style="text-align: center;">Review, buffer, sync with mentors</td>
 </tr>
 <tr>
 <td>Coding Phase 2</td>
-<td>July 18 – Aug 16</td>
-<td>Stripe callbacks, Zapier, extensions</td>
+<td><nobr>July 18 – Aug 16</nobr></td>
+<td style="text-align: center;">integrations page revamp,OAuth scope enforcement, consent screen, UX polish</td>
 </tr>
 <tr>
 <td>Final Week</td>
-<td>Aug 17 – Aug 24</td>
-<td>Wrap up, final report</td>
+<td><nobr>Aug 17 – Aug 24</nobr></td>
+<td style="text-align: center;">PR reviews, docs, final report</td>
 </tr>
 </tbody>
 </table>
-<hr />
-<h3 id="pre-community-bonding-april-2nd-to-april-27th">Pre-Community Bonding — April 2nd to April 27th</h3>
-<ul>
-<li>This period i would like to dedicate to getting my existing PR to a good state (probably merged), so that they dont end up being stale. 
-(#38599 Intercom, #38279 Jira comments, #38481 Azure Alert, # import slack) </li>
-</ul>
-<h3 id="community-bonding-april-28th-to-may-25th">Community Bonding — April 28th to May 25th</h3>
-<p>-I would like this period to be more of research and preperatory work for my GSOC project. Going through the documentation existing work in some completion candidate and even closed WIPs as there are many which i can use to learn about(#452,)
-- And most importantly develop a better bond with my mentors  (Niloth and Lauryn).</p>
-<h3 id="coding-phase-1-may-26th-to-july-10th">Coding Phase 1 — May 26th to July 10th</h3>
-<ul>
-<li><strong>Week 1:</strong> <strong>Backend Permissions System</strong> — Implement core decorator in <code>zerver/decorator.py</code> to enforce <code>INCOMING_WEBHOOK_BOT</code> restrictions on read endpoints. Add unit tests for compliance.</li>
-<li><strong>Week 2:</strong> <strong>OAuth Infrastructure Setup</strong> — Integrate <code>django-oauth-toolkit</code>, configure scopes (<code>webhook:send</code>, <code>bot:read</code>, <code>bot:write</code>), and register OAuth endpoints locally.</li>
-<li><strong>Week 3:</strong> <strong>OAuth Token Authentication</strong> — Extend API dispatcher in <code>zerver/lib/rest.py</code> to accept Bearer tokens alongside API keys, and enforce backend scope restrictions.</li>
-<li><strong>Week 4:</strong> <strong>OAuth Authorization Screen</strong> — Build and style the consent screen matching Zulip's UI for users to approve webhook access.</li>
-<li><strong>Week 5:</strong> <strong>UI/UX Revamp (Backend + Button)</strong> — Update <code>zerver/views/documentation.py</code> to pass the <code>user_can_create_webhook</code> flag. Conditionally render the "Add to Zulip" button on the integrations page.</li>
-<li><strong>Week 6:</strong> <strong>UI/UX Revamp (Frontend Modal)</strong> — Build the stream picker modal (<code>add_to_zulip_modal.hbs</code>), wire it up to <code>POST /json/bots</code>, and route through the new OAuth flow. Fix emerging bugs and write initial docs.</li>
-</ul>
-<h3 id="midterm-evaluation-july-13th-to-july-17th">Midterm Evaluation — July 13th to July 17th</h3>
-<ul>
-<li>Buffer for any carry-over from Phase 1.</li>
-<li>Deliver working Backend Permissions, OAuth flow, and the <code>/integrations</code> page revamp.</li>
-<li>Sync with mentors on priorities for Phase 2 (the webhook field customizations).</li>
-</ul>
-<h3 id="coding-phase-2-july-18th-to-august-16th">Coding Phase 2 — July 18th to August 16th</h3>
-<ul>
-<li><strong>Week 7:</strong> <strong>Custom Webhook Fields (Backend Core)</strong> — Define <code>ISSUE_FIELDS_CONFIG</code> for Jira. Add <code>created_issue_fields</code> parameter and refactor <code>handle_created_issue_event</code>.</li>
-<li><strong>Week 8:</strong> <strong>Custom Fields (Advanced Resolution)</strong> — Add custom dot-path field resolution logic (<code>project.name</code>, <code>customfield_*.name</code>). Fallback logic handling.</li>
-<li><strong>Week 9:</strong> <strong>Custom Fields (Frontend State)</strong> — Hook up <code>WebhookUrlOption</code> with the <code>options</code> field, configure backend serialization and Zod schema updates.</li>
-<li><strong>Week 10:</strong> <strong>Pill-based UI</strong> — Implement pill-based UI with typeahead (<code>integration_field_pill.ts</code>), and URL builder integration inside the URL generation modal.</li>
-<li><strong>Week 11:</strong> <strong>Extensibility &amp; Docs</strong> — Extend the pill UI framework to other integrations (e.g. GitHub, PagerDuty), polishing the user experience, addressing PR review feedback.</li>
-</ul>
-<h3 id="final-week-august-17-to-august-24">Final Week — August 17 to August 24</h3>
-<ul>
-<li>Address all pending review comments across the entire codebase.</li>
-<li>Final documentation pass (API boundaries, custom fields notation).</li>
-<li>Submit end-of-programme report.</li>
-</ul>
-              
-            </div>
-          </div><footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../implementation/" class="btn btn-neutral float-left" title="Project Proposal"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../availability/" class="btn btn-neutral float-right" title="Availability">Next <span class="icon icon-circle-arrow-right"></span></a>
-    </div>
-
-  <hr/>
-
-  <div role="contentinfo">
-    <!-- Copyright etc -->
-  </div>
+</div>
+</div><footer>
+<div aria-label="Footer Navigation" class="rst-footer-buttons" role="navigation">
+<a class="btn btn-neutral float-left" href="../implementation/" title="Project Proposal"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+<a class="btn btn-neutral float-right" href="../availability/" title="Availability">Next <span class="icon icon-circle-arrow-right"></span></a>
+</div>
+<hr/>
+<div role="contentinfo">
+<!-- Copyright etc -->
+</div>
 
   Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
 </footer>
-          
-        </div>
-      </div>
-
-    </section>
-
-  </div>
-
-  <div class="rst-versions" role="note" aria-label="Versions">
-  <span class="rst-current-version" data-toggle="rst-current-version">
-    
-    
-      <span><a href="../implementation/" style="color: #fcfcfc">&laquo; Previous</a></span>
-    
-    
-      <span><a href="../availability/" style="color: #fcfcfc">Next &raquo;</a></span>
-    
-  </span>
 </div>
-    <script src="../js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = "..";</script>
-    <script src="../js/theme_extra.js"></script>
-    <script src="../js/theme.js"></script>
-      <script src="../search/main.js"></script>
-    <script>
+</div>
+</section>
+</div>
+<div aria-label="Versions" class="rst-versions" role="note">
+<span class="rst-current-version" data-toggle="rst-current-version">
+<span><a href="../implementation/" style="color: #fcfcfc">« Previous</a></span>
+<span><a href="../availability/" style="color: #fcfcfc">Next »</a></span>
+</span>
+</div>
+<script src="../js/jquery-3.6.0.min.js"></script>
+<script>var base_url = "..";</script>
+<script src="../js/theme_extra.js"></script>
+<script src="../js/theme.js"></script>
+<script>
         jQuery(function () {
             SphinxRtdTheme.Navigation.enable(true);
         });
     </script>
-
 </body>
 </html>
