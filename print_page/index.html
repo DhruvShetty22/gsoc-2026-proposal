@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
       <link rel="shortcut icon" href="../img/favicon.ico" />
-    <title>Project Proposal - Dhruv Shetty – GSoC 2026 Proposal</title>
+    <title>Dhruv Shetty – GSoC 2026 Proposal</title>
     <link rel="stylesheet" href="../css/theme.css" />
     <link rel="stylesheet" href="../css/theme_extra.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
@@ -15,8 +15,8 @@
     
       <script>
         // Current page data
-        var mkdocs_page_name = "Project Proposal";
-        var mkdocs_page_input_path = "implementation.md";
+        var mkdocs_page_name = "";
+        var mkdocs_page_input_path = "print_page.md";
         var mkdocs_page_url = null;
       </script>
     
@@ -25,7 +25,13 @@
     <![endif]-->
       <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
       <script>hljs.highlightAll();</script> 
-</head>
+
+        <script type="text/javascript">
+        document.addEventListener('DOMContentLoaded', function () {
+            remove_material_navigation();remove_mkdocs_theme_navigation();
+        })
+        </script>
+        </head>
 
 <body class="wy-body-for-nav" role="document">
 
@@ -46,18 +52,8 @@
                 <li class="toctree-l1"><a class="reference internal" href="../contributions/">My Contributions</a>
                 </li>
               </ul>
-              <ul class="current">
-                <li class="toctree-l1 current"><a class="reference internal current" href="#">Project Proposal</a>
-    <ul class="current">
-    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#backend-bot-permissions-system">Backend Bot Permissions System</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#oauth-authorization-flow">OAuth Authorization Flow</a>
-    </li>
-    <li class="toctree-l2"><a class="reference internal" href="#uiux-revamp-for-the-integrations-page">UI/UX Revamp for the /integrations Page</a>
-    </li>
-    </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../implementation/">Project Proposal</a>
                 </li>
               </ul>
               <ul>
@@ -82,7 +78,7 @@
         <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
   <ul class="wy-breadcrumbs">
     <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
-      <li class="breadcrumb-item active">Project Proposal</li>
+      <li class="breadcrumb-item active"></li>
     <li class="wy-breadcrumbs-aside">
     </li>
   </ul>
@@ -91,10 +87,119 @@
           <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
             <div class="section" itemprop="articleBody">
               
-                <h1 id="a-gist-of-the-problem-statement">A gist of the Problem Statement</h1>
+                <div id="print-site-page" class=""><section class="print-page" id="index" heading-number="1"><div class="cover-page">
+  <img src="../assets/zulip-logo.svg" alt="Zulip Logo" />
+  <h1 class="cover-title">Google Summer of Code 2026 <span>@Zulip</span></h1>
+  <h2>Make Zulip Integrations Accessible:<br>Bot Permissions Management and OAuth System</h2>
+  <p class="cover-meta">Project Proposal &nbsp;·&nbsp; By Dhruv Shetty</p>
+</div>
+
+<h2 id="index-about-me">About Me</h2>
+<p>Hi! I'm Dhruv Shetty, a junior undergraduate at the Indian Institute of Technology Kanpur. My journey into programming started from the realization that the tools I used every day were built by people not so different from me. I've always been fascinated by how the collective efforts of a community can bring some complex system to life. This curiosity is what led me to open source.</p>
+<p>Over the past few months, "Eat, Code, Sleep" has been my mantra as I started contributing to open source. Developing brings me genuine joy, and my experience in open source has been incredibly fulfilling.
+Outside of academics, I am a sportsperson, a weightlifter, and also like to play badminton. </p>
+<h2 id="index-general-information">General Information</h2>
+<ul>
+<li><strong>GitHub:</strong> <a href="https://github.com/DhruvShetty22">DhruvShetty22</a></li>
+<li><strong>Zulip Username:</strong> <a href="https://chat.zulip.org/#user/36681">Dhruv Shetty</a></li>
+<li><strong>LinkedIn:</strong> <a href="https://www.linkedin.com/in/dhruv-shetty22/">Dhruv Shetty</a></li>
+<li><strong>Personal Email:</strong> dhruvshetty2203@gmail.com</li>
+<li><strong>Institute:</strong> Indian Institute of Technology Kanpur</li>
+<li><strong>College Email:</strong> sdhruv23@iitk.ac.in</li>
+<li><strong>Phone No.:</strong> +91 7208520422</li>
+<li><strong>Timezone:</strong> Indian Standard Time (GMT+05:30)</li>
+</ul>
+<h1 id="index-why-zulip">Why Zulip?</h1>
+<p>I discovered Zulip while exploring active open-source organizations to contribute to. During this process, I repeatedly came across Zulip being referenced in the README files of several projects, often highlighted as a platform where they discussed ideas and developed them. This initially drew my attention to the project.
+As I went through Zulip’s documentation and codebase. I really loved how structured and well-organized everything was. It made it very easy for me to understand the codebase and start contributing. </p>
+<p>The code review process here is something which i loved the most. I still remember my first pull request, which I initially thought was ready to be merged, had so much room for improvement that i ended up rewriting almost everything. The level of attention to detail and the emphasis on encouraging contributors to think and question their own decisions to improve their work is what taught me to write better code.</p>
+<p>I am honestly very grateful to the maintainers for their time and support. Regardless of the outcome of this GSoC application, I intend to remain an active contributor and be a part of the Zulip community :)</p>
+<h2 id="index-prior-experiences">Prior Experiences</h2>
+<p>While this is my first time contributing to Open Source, I have practical experience from my role as a software development intern at imbesideyou (a Japanese AI startup) and from actively participating in several hackathons. You can also explore my various personal projects some part of course work while some being hackathon projects, on my GitHub profile: <a href="https://github.com/DhruvShetty22">DhruvShetty22</a>.</p>
+<h2 id="index-post-gsoc">Post GSoC</h2>
+<p>I learned so much as part of my preparation for GSoC so I plan to continue contributing to Zulip even after the program ends completing the PRs that i opened and guide future contributors. Post GSoC, I also plan to work on a few more orgs other than Zulip to get more exposure. I love this community and would definitely be a part of it in the long run. Thank You :)</p>
+<div class="admonition important">
+<p class="admonition-title">Note for Reviewers</p>
+<p>This proposal is available as a <a href="https://dhruvshetty22.github.io/gsoc-2026-proposal/">website</a>. The website is more interactive and contains additional information, so I highly recommend reading the web version for the best experience. Sorry for the inconvenience caused.</p>
+</div></section><section class="print-page" id="contributions" heading-number="2"><h1 id="contributions-my-contributions-to-zulip">My Contributions to Zulip</h1>
+<p>I started contributing to Zulip in mid-December'25, with my first pull request being #37183. Looking back at it now, I can clearly see how much my understanding of Zulip's coding standards and development workflow has grown since then.</p>
+<p>Rather than rushing to open multiple PRs early on, I focused on understanding the codebase and adapting to the review process. This foundation has helped me write more thoughtful, maintainable contributions over time... I believe I did not have much luck with getting a lot of Merged PR, but i think i have done a decent Job reviewing and taking feedbacks and would try to continue doing same
+I am especially grateful to Niloth for his efforts to review my PRs and guide me through the process.</p>
+<table>
+<thead>
+<tr>
+<th>PR</th>
+<th>Description</th>
+<th>Status</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/38333">#38333</a></nobr></td>
+<td><nobr>api docs: Add documentation for JWT API key fetch endpoint (<span style="color: green;">+124</span>, <span style="color: red;">-10</span>)</nobr></td>
+<td><nobr><span class="badge badge-merged">Merged</span></nobr></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/37551">#37551</a></nobr></td>
+<td><nobr>integrations/github: Add fixture and test for issue edited events (<span style="color: green;">+419</span>, <span style="color: red;">-0</span>)</nobr></td>
+<td><nobr><span class="badge badge-merged">Merged*</span></nobr></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/37183">#37183</a></nobr></td>
+<td><nobr>webhooks/github: Support renaming topics on issue edit (<span style="color: green;">+602</span>, <span style="color: red;">-368</span>)</nobr></td>
+<td><nobr><span class="badge badge-review">Integration Review</span></nobr></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/38347">#38347</a></nobr></td>
+<td><nobr>populate_db: Add links and attachments to generated message data (<span style="color: green;">+83</span>, <span style="color: red;">-11</span>)</nobr></td>
+<td><nobr><span class="badge badge-review">Integration Review</span></nobr></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/37841">#37841</a></nobr></td>
+<td><nobr>url_preview: Fix YouTube link previews by replacing pyoembed (<span style="color: green;">+460</span>, <span style="color: red;">-146</span>)</nobr></td>
+<td><nobr><span class="badge badge-maintainer">Maintainer Review</span></nobr></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/37966">#37966</a></nobr></td>
+<td><nobr>stream list: Preserve expanded topic-list state in sidebar (<span style="color: green;">+90</span>, <span style="color: red;">-0</span>)</nobr></td>
+<td><nobr><span class="badge badge-maintainer">Maintainer Review</span></nobr></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/38279">#38279</a></nobr></td>
+<td><nobr>integrations: Improve Jira's comment-event notification (<span style="color: green;">+393</span>, <span style="color: red;">-15</span>)</nobr></td>
+<td><nobr><span class="badge badge-maintainer">Maintainer Review</span></nobr></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/37857">#37857</a></nobr></td>
+<td><nobr>buddy_list: Use <code>::before</code> for status circle to refactor rendering (<span style="color: green;">+71</span>, <span style="color: red;">-3</span>)</nobr></td>
+<td></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/38481">#38481</a></nobr></td>
+<td><nobr>azurealert: Add incoming webhook integration (<span style="color: green;">+455</span>, <span style="color: red;">-0</span>)</nobr></td>
+<td></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/38599">#38599</a></nobr></td>
+<td><nobr>webhooks/intercom: Add support for company events (<span style="color: green;">+113</span>, <span style="color: red;">-2</span>)</nobr></td>
+<td></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/38650">#38650</a></nobr></td>
+<td><nobr>slack: Import Slack Canvas posts when importing from Slack (<span style="color: green;">+344</span>, <span style="color: red;">-49</span>)</nobr></td>
+<td></td>
+</tr>
+<tr>
+<td><nobr><a href="https://github.com/zulip/zulip/pull/37186">#37186</a></nobr></td>
+<td><nobr>webhooks: Add helper to auto-resolve topics (<span style="color: green;">+376</span>, <span style="color: red;">-1</span>)</nobr></td>
+<td><nobr>Code Review</nobr></td>
+</tr>
+</tbody>
+</table>
+<p><em>* Co-authored with another contributor</em></p></section><section class="print-page" id="implementation" heading-number="3"><h1 id="implementation-a-gist-of-the-problem-statement">A gist of the Problem Statement</h1>
 <p>Setting up <strong>integrations</strong> in Zulip can be a daunting process for non-technical users. They are redirected to the administration panel to manually create and configure bots.
 Furthermore, the bot permission management lacks a user-friendly interface and a backend permissions system for managing bot permissions, making it difficult for users to grant integrations access to their Zulip data.</p>
-<h3 id="overview">Overview</h3>
+<h3 id="implementation-overview">Overview</h3>
 <ol>
 <li>
 <p><strong>Backend Bot Permissions System:</strong> Design and implement a backend permissions framework to enforce what actions integration bots can perform at runtime, not just at creation time.</p>
@@ -106,7 +211,7 @@ Furthermore, the bot permission management lacks a user-friendly interface and a
 <p><strong>UI/UX Revamp for the <code>/integrations</code> Page:</strong> Wire up the existing bot-creation infrastructure directly to the integrations page, replacing the multi-step admin-panel redirect with a single "Add to Zulip" flow.</p>
 </li>
 </ol>
-<h3 id="backend-bot-permissions-system">Backend Bot Permissions System</h3>
+<h3 id="implementation-backend-bot-permissions-system">Backend Bot Permissions System</h3>
 <p><strong>Problem:</strong> Zulip's <code>INCOMING_WEBHOOK_BOT</code> type is documented as write-only, but this is never enforced at runtime. Once a bot has an API key, it can call any endpoint regardless of its type, a webhook bot could read messages it was without the necessary access.</p>
 <p><strong>Implementation Plan</strong></p>
 <p><strong>1. Centralized access level module — <code>zerver/lib/bot_permissions.py</code></strong></p>
@@ -131,7 +236,7 @@ def check_bot_can_access_endpoint(user_profile: UserProfile, endpoint_allows_sen
 <li><a href="https://github.com/zulip/zulip/issues/31389">#31389: Allow changing the bot type of a bot user in the "manage bot" modal.</a></li>
 </ul>
 <hr />
-<h3 id="oauth-authorization-flow">OAuth Authorization Flow</h3>
+<h3 id="implementation-oauth-authorization-flow">OAuth Authorization Flow</h3>
 <p><strong>Problem:</strong> Integrations currently use API key embedded in the webhook URL <code>/api/v1/external/github?api_key=abc</code> which makes it difficult to limit its scope. The users never see or approve what the integration can do.</p>
 <p><strong>Proposed OAuth flow:</strong> The user clicks "Add to Zulip" and is redirected to a consent screen at <code>/oauth/authorize/</code> that lists what the integration can do (e.g. "Send messages via incoming webhooks"). Only after the user approves is an authorization code issued, exchanged for a scoped Bearer token, and returned as the credential in the webhook URL. Each token can be revoked independently without affecting other integrations.</p>
 <p><strong>Implementation Plan</strong></p>
@@ -179,7 +284,7 @@ rest_path(
 <li><a href="https://github.com/zulip/zulip/issues/12803">#12803: Allow revoking OAuth login</a></li>
 </ul>
 <hr />
-<h3 id="uiux-revamp-for-the-integrations-page">UI/UX Revamp for the <code>/integrations</code> Page</h3>
+<h3 id="implementation-uiux-revamp-for-the-integrations-page">UI/UX Revamp for the <code>/integrations</code> Page</h3>
 <p><strong>Problem:</strong> Every integration's setup page opens with instructions to navigate to Settings → Bots, create a bot manually, copy the API key, and return. The infrastructure for bot creation <code>POST /json/bots</code> handles creation and <code>can_create_incoming_webhooks()</code> already checks the right permissions — none of it is wired to the integrations page. This directly addresses issues <a href="https://github.com/zulip/zulip/issues/9815">#9815</a> and <a href="https://github.com/zulip/zulip/issues/692">#692</a>.</p>
 <p>Issue <a href="https://github.com/zulip/zulip/issues/30139">#30139</a> (auto-populate bot avatar) is also related, the "Add to Zulip" flow handles this naturally since the integration is already known from context, so the avatar assigns automatically without an extra selector.</p>
 <p><img alt="Add to Zulip modal mockup" src="../assets/add_to_zulip.png" /></p>
@@ -444,14 +549,155 @@ can adopt it. Potential candidates:
 
 Each integration would define its own `FIELDS_CONFIG` dict and add
 `options=` to its `WebhookUrlOption` — no framework changes needed.
- -->
+ --></section><section class="print-page" id="timeline" heading-number="4"><h1 id="timeline-timeline">Timeline</h1>
+<p>I plan to submit small PRs throught for the ease of Review and work on multiple PRs parallely to not get stuck on the review process.</p>
+<hr />
+<h3 id="timeline-pre-community-bonding-april-1st-to-april-30th">Pre-Community Bonding : April 1st to April 30th</h3>
+<ul>
+<li>Dedicate this period to getting existing PRs to a mergeable state, so they don't go stale during GSoC.</li>
+<li><a href="https://github.com/zulip/zulip/pull/38599">#38599</a> :Intercom company events</li>
+<li><a href="https://github.com/zulip/zulip/pull/38279">#38279</a> :Jira comment-event notifications</li>
+<li><a href="https://github.com/zulip/zulip/pull/38481">#38481</a> :Azure Alert integration</li>
+<li><a href="https://github.com/zulip/zulip/pull/38650">#38650</a> :Import Slack Canvas posts</li>
+</ul>
+<hr />
+<h3 id="timeline-community-bonding-may-1st-to-may-25th">Community Bonding : May 1st to May 25th</h3>
+<ul>
+<li>I would like this period to be focused on research and preparatory work for my GSoC project, going through the documentation, studying existing work in completion candidates, and even closed WIPs, as there are many I can learn from.</li>
+<li>Most importantly, I will discuss the plan for the coming weeks with my mentors, align on issue priorities, and gather feedback on my open PRs.</li>
+</ul>
+<h3 id="timeline-coding-phase-1-may-26th-to-july-10th">Coding Phase 1 : May 26th to July 10th</h3>
+<ul>
+<li><strong>Backend Permissions &amp; OAuth Infrastructure</strong> : Start by implementing core decorator functions to restrict <code>INCOMING_WEBHOOK_BOT</code> access on read endpoints. The primary issues here are <a href="https://github.com/zulip/zulip/issues/16431">#16431</a> and <a href="https://github.com/zulip/zulip/issues/22405">#22405</a>.</li>
+<li><strong>OAuth Implementation</strong> : Extend the API dispatcher to accept Bearer tokens alongside API keys and enforce scope restrictions. No dedicated open issue exists yet, will discuss the approach with mentors early in this phase.</li>
+<li><strong>Integrations Page Revamp</strong> : Towards the end of this phase, begin work on the <code>/integrations</code> page UX, implementing the "Add to Zulip" button and stream picker modal (<a href="https://github.com/zulip/zulip/issues/9815">#9815</a>).</li>
+</ul>
+<h3 id="timeline-midterm-evaluation-july-7th-to-july-10th">Midterm Evaluation : July 7th to July 10th</h3>
+<ul>
+<li><strong>Deliverables:</strong> Working backend permissions system, Bearer token authentication.</li>
+<li>Submit midterm evaluation.</li>
+</ul>
+<hr />
+<h3 id="timeline-coding-phase-2-july-18th-to-august-16th">Coding Phase 2 : July 18th to August 16th</h3>
+<ul>
+<li>With the internship winding down, I will have significantly more time in this phase. I plan to work on issues that still need feedback or experimentation to move forward.</li>
+<li>Focus areas include the OAuth consent screen and <code>/integration</code> page. (if not completed in Phase 1), along with:</li>
+<li><a href="https://github.com/zulip/zulip/issues/30139">#30139: Auto populate bot avatar for webhook integrations bot</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/36564">#36564: Improve "Generate integration URL" modal's "Topic" field</a></li>
+<li><a href="https://github.com/zulip/zulip/issues/33788">#33788: Add "copy" button to URL in "Generate URL for an integration" modal</a>
+These PRs have significant work already done by other contributors which is why i think it would be realistic to complete them in this phase.</li>
+</ul>
+<h3 id="timeline-final-week-august-17-to-august-24">Final Week : August 17 to August 24</h3>
+<ul>
+<li>Address all outstanding review comments across PRs.</li>
+<li>Final documentation pass covering API boundaries, OAuth scope, and the "Add to Zulip" flow.</li>
+<li>Submit end-of-programme report.</li>
+</ul>
+<hr />
+<h3 id="timeline-summary">Summary</h3>
+<table>
+<thead>
+<tr>
+<th>Phase</th>
+<th>Dates</th>
+<th style="text-align: center;">Focus</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Pre-Community Bonding</td>
+<td><nobr>April 1 – April 30</nobr></td>
+<td style="text-align: center;">Work on existing open PRs</td>
+</tr>
+<tr>
+<td>Community Bonding</td>
+<td><nobr>May 1 – May 25</nobr></td>
+<td style="text-align: center;">Research, product decision alignment, mentor discussions</td>
+</tr>
+<tr>
+<td>Coding Phase 1</td>
+<td><nobr>May 26 – July 10</nobr></td>
+<td style="text-align: center;">Backend permissions for Bot and OAuth infrastructure</td>
+</tr>
+<tr>
+<td>Midterm Evaluation</td>
+<td><nobr>July 7 – July 10</nobr></td>
+<td style="text-align: center;">Review, buffer, sync with mentors</td>
+</tr>
+<tr>
+<td>Coding Phase 2</td>
+<td><nobr>July 18 – Aug 16</nobr></td>
+<td style="text-align: center;">integrations page revamp,OAuth scope enforcement, consent screen, UX polish</td>
+</tr>
+<tr>
+<td>Final Week</td>
+<td><nobr>Aug 17 – Aug 24</nobr></td>
+<td style="text-align: center;">PR reviews, docs, final report</td>
+</tr>
+</tbody>
+</table></section><section class="print-page" id="availability" heading-number="5"><h1 id="availability-availability">Availability</h1>
+<p>I am applying for the <strong>175-hour</strong> project. While I would love to take on the 350-hour scope, I want to be realistic as I will be continuing a part-time remote internship alongside GSoC. The internship has flexible hours, and I have been successfully balancing it with college and Zulip contributions since January, so I am confident that I can sustain my commitment throughout the programme.</p>
+<p>College will be on break for most of the GSoC period, freeing up substantial time. On weekdays I plan to contribute 1–2 focused hours, with the bulk of my work concentrated on Fridays and weekends. My expected weekly availability is:</p>
+<table>
+<thead>
+<tr>
+<th>Period</th>
+<th>Hours/week</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>Community bonding + internship overlap</td>
+<td>16 – 20 hrs</td>
+</tr>
+<tr>
+<td>Post-July (internship winds down)</td>
+<td>30 – 40 hrs</td>
+</tr>
+</tbody>
+</table></section></div><style>.print-site-enumerate-headings #index > h1:before { content: '1 ' }
+
+                .print-site-enumerate-headings #index h2:before { content: '1.' counter(counter-index-2) ' ' }
+                .print-site-enumerate-headings #index h2 {  counter-reset: counter-index-3 ;  counter-increment: counter-index-2 }
+            
+                .print-site-enumerate-headings #index h3:before { content: '1.' counter(counter-index-2) '.' counter(counter-index-3) ' ' }
+                .print-site-enumerate-headings #index h3 {  counter-increment: counter-index-3 }
+            
+.print-site-enumerate-headings #contributions > h1:before { content: '2 ' }
+
+                .print-site-enumerate-headings #contributions h2:before { content: '2.' counter(counter-contributions-2) ' ' }
+                .print-site-enumerate-headings #contributions h2 {  counter-reset: counter-contributions-3 ;  counter-increment: counter-contributions-2 }
+            
+                .print-site-enumerate-headings #contributions h3:before { content: '2.' counter(counter-contributions-2) '.' counter(counter-contributions-3) ' ' }
+                .print-site-enumerate-headings #contributions h3 {  counter-increment: counter-contributions-3 }
+            
+.print-site-enumerate-headings #implementation > h1:before { content: '3 ' }
+
+                .print-site-enumerate-headings #implementation h2:before { content: '3.' counter(counter-implementation-2) ' ' }
+                .print-site-enumerate-headings #implementation h2 {  counter-reset: counter-implementation-3 ;  counter-increment: counter-implementation-2 }
+            
+                .print-site-enumerate-headings #implementation h3:before { content: '3.' counter(counter-implementation-2) '.' counter(counter-implementation-3) ' ' }
+                .print-site-enumerate-headings #implementation h3 {  counter-increment: counter-implementation-3 }
+            
+.print-site-enumerate-headings #timeline > h1:before { content: '4 ' }
+
+                .print-site-enumerate-headings #timeline h2:before { content: '4.' counter(counter-timeline-2) ' ' }
+                .print-site-enumerate-headings #timeline h2 {  counter-reset: counter-timeline-3 ;  counter-increment: counter-timeline-2 }
+            
+                .print-site-enumerate-headings #timeline h3:before { content: '4.' counter(counter-timeline-2) '.' counter(counter-timeline-3) ' ' }
+                .print-site-enumerate-headings #timeline h3 {  counter-increment: counter-timeline-3 }
+            
+.print-site-enumerate-headings #availability > h1:before { content: '5 ' }
+
+                .print-site-enumerate-headings #availability h2:before { content: '5.' counter(counter-availability-2) ' ' }
+                .print-site-enumerate-headings #availability h2 {  counter-reset: counter-availability-3 ;  counter-increment: counter-availability-2 }
+            
+                .print-site-enumerate-headings #availability h3:before { content: '5.' counter(counter-availability-2) '.' counter(counter-availability-3) ' ' }
+                .print-site-enumerate-headings #availability h3 {  counter-increment: counter-availability-3 }
+            </style>
               
             </div>
           </div><footer>
-    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
-        <a href="../contributions/" class="btn btn-neutral float-left" title="My Contributions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
-        <a href="../timeline/" class="btn btn-neutral float-right" title="Timeline">Next <span class="icon icon-circle-arrow-right"></span></a>
-    </div>
 
   <hr/>
 
@@ -473,15 +719,11 @@ Each integration would define its own `FIELDS_CONFIG` dict and add
   <span class="rst-current-version" data-toggle="rst-current-version">
     
     
-      <span><a href="../contributions/" style="color: #fcfcfc">&laquo; Previous</a></span>
-    
-    
-      <span><a href="../timeline/" style="color: #fcfcfc">Next &raquo;</a></span>
     
   </span>
 </div>
     <script src="../js/jquery-3.6.0.min.js"></script>
-    <script>var base_url = "..";</script>
+    <script>var base_url = "/";</script>
     <script src="../js/theme_extra.js"></script>
     <script src="../js/theme.js"></script>
       <script src="../js/print-site.js"></script>
