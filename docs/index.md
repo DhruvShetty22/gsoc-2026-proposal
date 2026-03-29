@@ -29,7 +29,7 @@ Outside of academics, I am a sportsperson, a weightlifter, and also like to play
 I discovered Zulip while exploring active open-source organizations to contribute to. During this process, I repeatedly came across Zulip being referenced in the README files of several projects, often highlighted as a platform where they discussed ideas and developed them. This initially drew my attention to the project.
 As I went through Zulip’s documentation and codebase. I really loved how structured and well-organized everything was. It made it very easy for me to understand the codebase and start contributing. 
 
-The code review process here is something which i loved the most. I still remember my first pull request, which I initially thought was ready to be merged, had so much room for improvement that i almost ended up rewriting almost everything. The level of attention to detail and the emphasis on encouraging contributors to think and question their own decisions to improve their work is what taught me to write better code.
+The code review process here is something which i loved the most. I still remember my first pull request, which I initially thought was ready to be merged, had so much room for improvement that i ended up rewriting almost everything. The level of attention to detail and the emphasis on encouraging contributors to think and question their own decisions to improve their work is what taught me to write better code.
 
 I am honestly very grateful to the maintainers for their time and support. Regardless of the outcome of this GSoC application, I intend to remain an active contributor and be a part of the Zulip community :)
 
@@ -43,5 +43,5 @@ I learned so much as part of my preparation for GSoC so I plan to continue contr
 
 
 !!! important "Note for Reviewers"
-    This proposal is available as a [website](https://dhruvshetty22.github.io/gsoc-2026-proposal/). The website is more interactive and contains additional information, so I highly recommend reading the web version for the best experience.
+    This proposal is available as a [website](https://dhruvshetty22.github.io/gsoc-2026-proposal/). The website is more interactive and contains additional information, so I highly recommend reading the web version for the best experience. Sorry for the inconvenience caused.
 

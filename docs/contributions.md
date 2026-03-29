@@ -1,4 +1,4 @@
-## My Contributions to Zulip
+# My Contributions to Zulip
 
 I started contributing to Zulip in mid-December'25, with my first pull request being #37183. Looking back at it now, I can clearly see how much my understanding of Zulip's coding standards and development workflow has grown since then.
 
@@ -13,7 +13,7 @@ I am especially grateful to Niloth for his efforts to review my PRs and guide me
 | <nobr>[#38347](https://github.com/zulip/zulip/pull/38347)</nobr> | <nobr>populate_db: Add links and attachments to generated message data (<span style="color: green;">+83</span>, <span style="color: red;">-11</span>)</nobr> | <nobr><span class="badge badge-review">Integration Review</span></nobr> |
 | <nobr>[#37841](https://github.com/zulip/zulip/pull/37841)</nobr> | <nobr>url_preview: Fix YouTube link previews by replacing pyoembed (<span style="color: green;">+460</span>, <span style="color: red;">-146</span>)</nobr> | <nobr><span class="badge badge-maintainer">Maintainer Review</span></nobr> |
 | <nobr>[#37966](https://github.com/zulip/zulip/pull/37966)</nobr> | <nobr>stream list: Preserve expanded topic-list state in sidebar (<span style="color: green;">+90</span>, <span style="color: red;">-0</span>)</nobr> | <nobr><span class="badge badge-maintainer">Maintainer Review</span></nobr> |
-| <nobr>[#38279](https://github.com/zulip/zulip/pull/38279)</nobr> | <nobr>integrations: Improve Jira's comment-event notification (<span style="color: green;">+393</span>, <span style="color: red;">-15</span>)</nobr> | |
+| <nobr>[#38279](https://github.com/zulip/zulip/pull/38279)</nobr> | <nobr>integrations: Improve Jira's comment-event notification (<span style="color: green;">+393</span>, <span style="color: red;">-15</span>)</nobr> |<nobr><span class="badge badge-maintainer">Maintainer Review</span></nobr> |
 | <nobr>[#37857](https://github.com/zulip/zulip/pull/37857)</nobr> | <nobr>buddy_list: Use `::before` for status circle to refactor rendering (<span style="color: green;">+71</span>, <span style="color: red;">-3</span>)</nobr> | |
 | <nobr>[#38481](https://github.com/zulip/zulip/pull/38481)</nobr> | <nobr>azurealert: Add incoming webhook integration (<span style="color: green;">+455</span>, <span style="color: red;">-0</span>)</nobr> | |
 | <nobr>[#38599](https://github.com/zulip/zulip/pull/38599)</nobr> | <nobr>webhooks/intercom: Add support for company events (<span style="color: green;">+113</span>, <span style="color: red;">-2</span>)</nobr> | |

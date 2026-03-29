@@ -1,11 +1,11 @@
-## A gist of the Problem Statement
+# A gist of the Problem Statement
 
 Setting up **integrations** in Zulip can be a daunting process for non-technical users. They are redirected to the administration panel to manually create and configure bots.
 Furthermore, the bot permission management lacks a user-friendly interface and a backend permissions system for managing bot permissions, making it difficult for users to grant integrations access to their Zulip data.
 
 ### Overview
 
-1. **Backend Bot Permissions System:** Design and implement a backend permissions framework to enforce what actions integration bots can perform at runtime — not just at creation time.
+1. **Backend Bot Permissions System:** Design and implement a backend permissions framework to enforce what actions integration bots can perform at runtime, not just at creation time.
 
 2. **OAuth Authorization Flow:** Implement an OAuth system using the **Django OAuth Toolkit**, presenting users with a clear consent screen that describes exactly what an integration can access before a token is issued.
 
@@ -20,7 +20,7 @@ Furthermore, the bot permission management lacks a user-friendly interface and a
 
 **1. Centralized access level module — `zerver/lib/bot_permissions.py`**
 
-Rather than scattering `is_incoming_webhook` checks throughout the codebase, bot access levels are captured in a single module. A `BotAccessLevel` enum with  `SEND_ONLY` and `READ_WRITE` value, making the permission tiers explicit. A `check_bot_can_access_endpoint()` helper raises a `JsonableError` if a `SEND_ONLY` bot attempts to reach an endpoint that hasn't been opted in to webhook access:
+Rather than scattering `is_incoming_webhook` checks throughout the codebase, bot access levels are captured in a single module. A `BotAccessLevel` enum with  *SEND_ONLY* and *READ_WRITE* value, making the permission tiers explicit. A `check_bot_can_access_endpoint()` helper raises a `JsonableError` if a *SEND_ONLY* bot attempts to reach an endpoint that hasn't been opted in to webhook access:
 
 ```python
 class BotAccessLevel(IntEnum):
@@ -35,7 +35,7 @@ def check_bot_can_access_endpoint(user_profile: UserProfile, endpoint_allows_sen
 
 **2. Replacing scattered checks in `zerver/decorator.py`**
 
-There are currently three separate inline `is_incoming_webhook` guards spread across `validate_api_key()`, `get_oauth2_token_user()`, and `authenticated_json_view()`. All three are replaced with calls to `check_bot_can_access_endpoint()`, removing the duplication and ensuring every auth path enforces the same rule through a single code path. 
+There are currently two separate inline `is_incoming_webhook` guards in `validate_api_key()` and `authenticated_json_view()`. The new `get_oauth2_token_user()` introduced in the OAuth flow (see below) would add a third. All three are replaced with calls to `check_bot_can_access_endpoint()`, removing the duplication and ensuring every auth path enforces the same rule through a single code path.
 
 The enforcement is then wired into the central dispatcher in `zerver/lib/rest.py` and documented in the OpenAPI.
 
@@ -91,7 +91,9 @@ elif request.path.startswith("/api") and "Authorization" in request.headers:
 
 **3. Authorization Consent Screen**
 
-The consent screen extends Zulip's `portico.html` base template so it inherits the standard page chrome. It shows the requesting application's name, a list of scope descriptions (rendered from the scopes backend), and Authorize/Deny buttons. 
+The consent screen extends Zulip's `portico.html` base template so it inherits the standard page chrome. It shows the requesting application's name, all available scopes as checkboxes (with requested scopes pre-checked), and Authorize/Deny buttons. The user can selectively grant permissions before authorizing. A custom `ZulipAuthorizationView` overrides the default to pass the full scopes dictionary to the template.
+
+![OAuth consent screen prototype](assets/consent_screen.png)
 
 **Per-Endpoint Scope Enforcement**
 
@@ -128,7 +130,7 @@ Issue [#30139](https://github.com/zulip/zulip/issues/30139) (auto-populate bot a
 
 ![Add to Zulip modal mockup](assets/add_to_zulip.png)
 
-### Plan
+**Plan**
 
 The full flow from button click to a ready-to-use webhook URL:
 
@@ -144,14 +146,12 @@ The full flow from button click to a ready-to-use webhook URL:
 !!! note
     The button will only be rendered server-side for users who can act on it. Unauthenticated visitors will see a sign-in prompt instead.
 
-- **Button** — Rendered in `templates/zerver/integrations/doc.html` with `data-` attributes carrying the integration name and logo, so the frontend needs no extra API call to create the bot.
 
 **Relevant Issues**
 
 - [#30139: Auto populate bot avatar for webhook integrations bot](https://github.com/zulip/zulip/issues/30139)
 - [#36564: Improve "Generate integration URL" modal's "Topic" field.](https://github.com/zulip/zulip/issues/36564)
 - [#33788: Add "copy" button to URL in "Generate URL for an integration" modal](https://github.com/zulip/zulip/issues/33788)
-- [#34269: New integration request: Quire (link preview)](https://github.com/zulip/zulip/issues/34269)
 
 ---
 <!-- 

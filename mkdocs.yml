@@ -10,8 +10,13 @@ markdown_extensions:
   - admonition
 
 plugins:
-  - with-pdf:
-      output_path: proposal.pdf
+  - print-site:
+      add_to_navigation: false
+      print_page_title: ''
+      add_print_site_banner: false
+      enumerate_headings: false
+      enumerate_figures: false
+      add_table_of_contents: false
       
 nav:
   - Introduction: index.md

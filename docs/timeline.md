@@ -1,4 +1,4 @@
-## Timeline
+# Timeline
 
 I plan to submit small PRs throught for the ease of Review and work on multiple PRs parallely to not get stuck on the review process.
 
