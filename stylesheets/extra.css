@@ -114,6 +114,16 @@ td:last-child {
   color: white;
 }
 
+.badge-buddy {
+  background: #e8862c;
+  color: white;
+}
+
+.badge-reviewed {
+  background: #2c7be5;
+  color: white;
+}
+
 table {
   table-layout: fixed;
   width: 100%;
@@ -123,4 +133,5 @@ td,
 th {
   white-space: normal !important;
   word-break: break-word;
+  text-align: center;
 }
